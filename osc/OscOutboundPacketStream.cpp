@@ -55,13 +55,13 @@ using ::__strcpy__;  // avoid error: E2316 '__strcpy__' is not a member of 'std'
 }
 #endif
 
-namespace osc{
+namespace oscpack{
 
 static void FromInt32( char *p, int32 x )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
-        osc::int32 i;
+        oscpack::int32 i;
         char c[4];
     } u;
 
@@ -81,7 +81,7 @@ static void FromUInt32( char *p, uint32 x )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
-        osc::uint32 i;
+        oscpack::uint32 i;
         char c[4];
     } u;
 
@@ -101,7 +101,7 @@ static void FromInt64( char *p, int64 x )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
-        osc::int64 i;
+        oscpack::int64 i;
         char c[8];
     } u;
 
@@ -125,7 +125,7 @@ static void FromUInt64( char *p, uint64 x )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
-        osc::uint64 i;
+        oscpack::uint64 i;
         char c[8];
     } u;
 
@@ -163,10 +163,10 @@ OutboundPacketStream::OutboundPacketStream( char *buffer, std::size_t capacity )
 {
     // sanity check integer types declared in OscTypes.h 
     // you'll need to fix OscTypes.h if any of these asserts fail
-    assert( sizeof(osc::int32) == 4 );
-    assert( sizeof(osc::uint32) == 4 );
-    assert( sizeof(osc::int64) == 8 );
-    assert( sizeof(osc::uint64) == 8 );
+    assert( sizeof(oscpack::int32) == 4 );
+    assert( sizeof(oscpack::uint32) == 4 );
+    assert( sizeof(oscpack::int64) == 8 );
+    assert( sizeof(oscpack::uint64) == 8 );
 }
 
 

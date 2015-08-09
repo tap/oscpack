@@ -39,7 +39,7 @@
 
 #include <exception>
 
-namespace osc{
+namespace oscpack{
 
 class Exception : public std::exception {
     const char *what_;

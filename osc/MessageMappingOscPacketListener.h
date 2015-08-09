@@ -44,12 +44,12 @@
 
 
 
-namespace osc{
+namespace oscpack{
 
 template< class T >
 class MessageMappingOscPacketListener : public OscPacketListener{
 public:
-    typedef void (T::*function_type)(const osc::ReceivedMessage&, const IpEndpointName&);
+    typedef void (T::*function_type)(const oscpack::ReceivedMessage&, const IpEndpointName&);
 
 protected:
     void RegisterMessageFunction( const char *addressPattern, function_type f )
@@ -57,7 +57,7 @@ protected:
         functions_.insert( std::make_pair( addressPattern, f ) );
     }
 
-    virtual void ProcessMessage( const osc::ReceivedMessage& m,
+    virtual void ProcessMessage( const oscpack::ReceivedMessage& m,
 		const IpEndpointName& remoteEndpoint )
     {
         typename function_map_type::iterator i = functions_.find( m.AddressPattern() );

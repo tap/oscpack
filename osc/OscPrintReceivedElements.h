@@ -42,7 +42,7 @@
 #include "OscReceivedElements.h"
 
 
-namespace osc{
+namespace oscpack{
 
 std::ostream& operator<<( std::ostream & os, const ReceivedPacket& p );
 std::ostream& operator<<( std::ostream & os, const ReceivedMessageArgument& arg );

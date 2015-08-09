@@ -36,7 +36,7 @@
 */
 #include "OscTypes.h"
 
-namespace osc{
+namespace oscpack{
 
 BundleInitiator BeginBundleImmediate(1);
 BundleTerminator EndBundle;

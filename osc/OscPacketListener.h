@@ -41,11 +41,11 @@
 #include "../ip/PacketListener.h"
 
 
-namespace osc{
+namespace oscpack{
 
 class OscPacketListener : public PacketListener{ 
 protected:
-    virtual void ProcessBundle( const osc::ReceivedBundle& b, 
+    virtual void ProcessBundle( const oscpack::ReceivedBundle& b, 
 				const IpEndpointName& remoteEndpoint )
     {
         // ignore bundle time tag for now
@@ -59,14 +59,14 @@ protected:
         }
     }
 
-    virtual void ProcessMessage( const osc::ReceivedMessage& m, 
+    virtual void ProcessMessage( const oscpack::ReceivedMessage& m, 
 				const IpEndpointName& remoteEndpoint ) = 0;
     
 public:
 	virtual void ProcessPacket( const char *data, int size, 
 			const IpEndpointName& remoteEndpoint )
     {
-        osc::ReceivedPacket p( data, size );
+        oscpack::ReceivedPacket p( data, size );
         if( p.IsBundle() )
             ProcessBundle( ReceivedBundle(p), remoteEndpoint );
         else

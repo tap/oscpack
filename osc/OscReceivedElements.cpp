@@ -40,7 +40,7 @@
 
 #include <cstddef> // ptrdiff_t
 
-namespace osc{
+namespace oscpack{
 
 
 // return the first 4 byte boundary after the end of a str4
@@ -94,7 +94,7 @@ static inline int32 ToInt32( const char *p )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
-        osc::int32 i;
+        oscpack::int32 i;
         char c[4];
     } u;
 
@@ -114,7 +114,7 @@ static inline uint32 ToUInt32( const char *p )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
-        osc::uint32 i;
+        oscpack::uint32 i;
         char c[4];
     } u;
 
@@ -134,7 +134,7 @@ static inline int64 ToInt64( const char *p )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
-        osc::int64 i;
+        oscpack::int64 i;
         char c[8];
     } u;
 
@@ -158,7 +158,7 @@ static inline uint64 ToUInt64( const char *p )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
-        osc::uint64 i;
+        oscpack::uint64 i;
         char c[8];
     } u;
 
@@ -238,7 +238,7 @@ int32 ReceivedMessageArgument::AsInt32Unchecked() const
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
-        osc::int32 i;
+        oscpack::int32 i;
         char c[4];
     } u;
 
@@ -446,7 +446,7 @@ void ReceivedMessageArgument::AsBlobUnchecked( const void*& data, osc_bundle_ele
         throw MalformedMessageException("invalid blob size");
 
     size = sizeResult;
-	data = (void*)(argumentPtr_+ osc::OSC_SIZEOF_INT32);
+	data = (void*)(argumentPtr_+ oscpack::OSC_SIZEOF_INT32);
 }
 
 std::size_t ReceivedMessageArgument::ComputeArrayItemCount() const
@@ -533,7 +533,7 @@ void ReceivedMessageArgumentIterator::Advance()
             {
                 // treat blob size as an unsigned int for the purposes of this calculation
                 uint32 blobSize = ToUInt32( value_.argumentPtr_ );
-                value_.argumentPtr_ = value_.argumentPtr_ + osc::OSC_SIZEOF_INT32 + RoundUp4( blobSize );
+                value_.argumentPtr_ = value_.argumentPtr_ + oscpack::OSC_SIZEOF_INT32 + RoundUp4( blobSize );
             }
             break;
 
@@ -689,12 +689,12 @@ void ReceivedMessage::Init( const char *message, osc_bundle_element_size_t size 
 
                     case BLOB_TYPE_TAG:
                         {
-                            if( argument + osc::OSC_SIZEOF_INT32 > end )
+                            if( argument + oscpack::OSC_SIZEOF_INT32 > end )
                                 MalformedMessageException( "arguments exceed message size" );
                                 
                             // treat blob size as an unsigned int for the purposes of this calculation
                             uint32 blobSize = ToUInt32( argument );
-                            argument = argument + osc::OSC_SIZEOF_INT32 + RoundUp4( blobSize );
+                            argument = argument + oscpack::OSC_SIZEOF_INT32 + RoundUp4( blobSize );
                             if( argument > end )
                                 MalformedMessageException( "arguments exceed message size" );
                         }
@@ -766,7 +766,7 @@ void ReceivedBundle::Init( const char *bundle, osc_bundle_element_size_t size )
     const char *p = timeTag_ + 8;
         
     while( p < end_ ){
-        if( p + osc::OSC_SIZEOF_INT32 > end_ )
+        if( p + oscpack::OSC_SIZEOF_INT32 > end_ )
             throw MalformedBundleException( "packet too short for elementSize" );
 
         // treat element size as an unsigned int for the purposes of this calculation
@@ -774,7 +774,7 @@ void ReceivedBundle::Init( const char *bundle, osc_bundle_element_size_t size )
         if( (elementSize & ((uint32)0x03)) != 0 )
             throw MalformedBundleException( "bundle element size must be multiple of four" );
 
-        p += osc::OSC_SIZEOF_INT32 + elementSize;
+        p += oscpack::OSC_SIZEOF_INT32 + elementSize;
         if( p > end_ )
             throw MalformedBundleException( "packet too short for bundle element" );
 

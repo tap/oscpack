@@ -43,7 +43,7 @@
 #include "OscException.h"
 
 
-namespace osc{
+namespace oscpack{
 
 class OutOfBufferMemoryException : public Exception{
 public:

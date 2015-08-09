@@ -47,7 +47,7 @@ using ::__strcpy__;  // avoid error: E2316 '__strcpy__' is not a member of 'std'
 }
 #endif
 
-namespace osc{
+namespace oscpack{
 
 
 std::ostream& operator<<( std::ostream & os,
