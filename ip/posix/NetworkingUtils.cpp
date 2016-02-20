@@ -43,7 +43,8 @@
 #include <cstring>
 
 
-
+namespace oscpack
+{
 NetworkInitializer::NetworkInitializer() {}
 
 NetworkInitializer::~NetworkInitializer() {}
@@ -61,4 +62,5 @@ unsigned long GetHostByName( const char *name )
     }
 
     return result;
+}
 }
