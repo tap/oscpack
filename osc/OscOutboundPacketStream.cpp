@@ -1,38 +1,38 @@
 /*
-	oscpack -- Open Sound Control (OSC) packet manipulation library
+  oscpack -- Open Sound Control (OSC) packet manipulation library
     http://www.rossbencina.com/code/oscpack
 
     Copyright (c) 2004-2013 Ross Bencina <rossb@audiomulch.com>
 
-	Permission is hereby granted, free of charge, to any person obtaining
-	a copy of this software and associated documentation files
-	(the "Software"), to deal in the Software without restriction,
-	including without limitation the rights to use, copy, modify, merge,
-	publish, distribute, sublicense, and/or sell copies of the Software,
-	and to permit persons to whom the Software is furnished to do so,
-	subject to the following conditions:
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be
-	included in all copies or substantial portions of the Software.
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
-	ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-	CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-	WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+  ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 /*
-	The text above constitutes the entire oscpack license; however, 
-	the oscpack developer(s) also make the following non-binding requests:
+  The text above constitutes the entire oscpack license; however,
+  the oscpack developer(s) also make the following non-binding requests:
 
-	Any person wishing to distribute modifications to the Software is
-	requested to send the modifications to the original developer so that
-	they can be incorporated into the canonical version. It is also 
-	requested that these non-binding requests be included whenever the
-	above license is reproduced.
+  Any person wishing to distribute modifications to the Software is
+  requested to send the modifications to the original developer so that
+  they can be incorporated into the canonical version. It is also
+  requested that these non-binding requests be included whenever the
+  above license is reproduced.
 */
 #include "OscOutboundPacketStream.h"
 
@@ -146,7 +146,7 @@ static void FromUInt64( char *p, uint64 x )
 
 
 // round up to the next highest multiple of 4. unless x is already a multiple of 4
-static inline std::size_t RoundUp4( std::size_t x ) 
+static inline std::size_t RoundUp4( std::size_t x )
 {
     return (x + 3) & ~((std::size_t)0x03);
 }
@@ -161,7 +161,7 @@ OutboundPacketStream::OutboundPacketStream( char *buffer, std::size_t capacity )
     , elementSizePtr_( 0 )
     , messageIsInProgress_( false )
 {
-    // sanity check integer types declared in OscTypes.h 
+    // sanity check integer types declared in OscTypes.h
     // you'll need to fix OscTypes.h if any of these asserts fail
     assert( sizeof(oscpack::int32) == 4 );
     assert( sizeof(oscpack::uint32) == 4 );
@@ -616,6 +616,27 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const char *rhs )
     return *this;
 }
 
+OutboundPacketStream&OutboundPacketStream::operator<<(
+    std::experimental::string_view rhs)
+{
+  CheckForAvailableArgumentSpace( RoundUp4(rhs.size() + 1) );
+
+  *(--typeTagsCurrent_) = STRING_TYPE_TAG;
+  std::strncpy( argumentCurrent_, rhs.data(), rhs.size() );
+  argumentCurrent_ += rhs.size();
+  *argumentCurrent_++ = '\0';
+
+  // zero pad to 4-byte boundary
+  std::size_t i = rhs.size() + 1;
+  while( i & 0x3 ){
+      *argumentCurrent_++ = '\0';
+      ++i;
+  }
+
+  return *this;
+
+}
+
 
 OutboundPacketStream& OutboundPacketStream::operator<<( const Symbol& rhs )
 {
@@ -644,7 +665,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const Blob& rhs )
     *(--typeTagsCurrent_) = BLOB_TYPE_TAG;
     FromUInt32( argumentCurrent_, rhs.size );
     argumentCurrent_ += 4;
-    
+
     std::memcpy( argumentCurrent_, rhs.data, rhs.size );
     argumentCurrent_ += rhs.size;
 

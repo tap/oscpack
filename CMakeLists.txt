@@ -16,7 +16,7 @@ if(UNIX AND NOT APPLE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
-ADD_LIBRARY(oscpack 
+ADD_LIBRARY(oscpack
 
 ip/IpEndpointName.h
 ip/IpEndpointName.cpp
@@ -31,7 +31,7 @@ ip/PacketListener.h
 ip/TimerListener.h
 
 osc/OscTypes.h
-osc/OscTypes.cpp 
+osc/OscTypes.cpp
 osc/OscHostEndianness.h
 osc/OscException.h
 osc/OscPacketListener.h
@@ -44,6 +44,8 @@ osc/OscOutboundPacketStream.h
 osc/OscOutboundPacketStream.cpp
 
 )
+
+set_target_properties(oscpack PROPERTIES CXX_STANDARD 14)
 
 if(OSCPACK_BUILD_EXAMPLES)
 ADD_EXECUTABLE(OscUnitTests tests/OscUnitTests.cpp)
