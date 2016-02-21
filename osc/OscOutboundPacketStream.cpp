@@ -46,7 +46,7 @@
 #include <cassert>
 #include <cstring> // memcpy, memmove, strcpy, strlen
 #include <cstddef> // ptrdiff_t
-
+#include <iostream>
 #include "OscHostEndianness.h"
 
 #if defined(__BORLANDC__) // workaround for BCB4 release build intrinsics bug
@@ -242,11 +242,11 @@ void OutboundPacketStream::CheckForAvailableBundleSpace()
 }
 
 
-void OutboundPacketStream::CheckForAvailableMessageSpace( const char *addressPattern )
+void OutboundPacketStream::CheckForAvailableMessageSpace( std::size_t addressPatternSize )
 {
     // plus 4 for at least four bytes of type tag
     std::size_t required = Size() + ((ElementSizeSlotRequired())?4:0)
-            + RoundUp4(std::strlen(addressPattern) + 1) + 4;
+            + RoundUp4(addressPatternSize + 1) + 4;
 
     if( required > Capacity() )
         throw OutOfBufferMemoryException();
@@ -356,12 +356,12 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const BeginMessage& rhs 
     if( IsMessageInProgress() )
         throw MessageInProgressException();
 
-    CheckForAvailableMessageSpace( rhs.addressPattern );
+    std::size_t rhsLength = std::strlen(rhs.addressPattern);
+    CheckForAvailableMessageSpace( rhsLength );
 
     messageCursor_ = BeginElement( messageCursor_ );
 
     std::strcpy( messageCursor_, rhs.addressPattern );
-    std::size_t rhsLength = std::strlen(rhs.addressPattern);
     messageCursor_ += rhsLength + 1;
 
     // zero pad to 4-byte boundary
@@ -377,6 +377,35 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const BeginMessage& rhs 
     messageIsInProgress_ = true;
 
     return *this;
+}
+
+OutboundPacketStream&OutboundPacketStream::operator<<(BeginMessageN rhs)
+{
+  if( IsMessageInProgress() )
+      throw MessageInProgressException();
+
+  CheckForAvailableMessageSpace( rhs.addressPattern.size() );
+
+  messageCursor_ = BeginElement( messageCursor_ );
+
+  std::strncpy( messageCursor_, rhs.addressPattern.data(), rhs.addressPattern.size() );
+
+  messageCursor_ += rhs.addressPattern.size();
+  *messageCursor_++ = '\0';
+
+  // zero pad to 4-byte boundary
+  std::size_t i = rhs.addressPattern.size() + 1;
+  while( i & 0x3 ){
+      *messageCursor_++ = '\0';
+      ++i;
+  }
+
+  argumentCurrent_ = messageCursor_;
+  typeTagsCurrent_ = end_;
+
+  messageIsInProgress_ = true;
+
+  return *this;
 }
 
 

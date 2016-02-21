@@ -30,7 +30,9 @@ ${IpSystemTypePath}/UdpSocket.cpp
 ip/PacketListener.h
 ip/TimerListener.h
 
+osc/SmallString.h
 osc/OscTypes.h
+osc/OscDebug.h
 osc/OscTypes.cpp
 osc/OscHostEndianness.h
 osc/OscException.h

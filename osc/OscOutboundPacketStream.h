@@ -39,6 +39,7 @@
 
 #include <cstring> // size_t
 #include <experimental/string_view>
+#include "SmallString.h"
 
 #include "OscTypes.h"
 #include "OscException.h"
@@ -73,6 +74,29 @@ public:
         : Exception( w ) {}
 };
 
+struct BeginMessageN
+{
+    BeginMessageN(const std::string& str):
+      addressPattern{str}
+    {
+
+    }
+
+    BeginMessageN(std::experimental::string_view str):
+      addressPattern{str}
+    {
+
+    }
+
+    template<int N>
+    BeginMessageN(const small_string_base<N>& small):
+      addressPattern(small.data(), small.size() - 1)
+    {
+
+    }
+
+    std::experimental::string_view addressPattern;
+};
 
 class OutboundPacketStream{
 public:
@@ -99,6 +123,7 @@ public:
     OutboundPacketStream& operator<<( const BundleTerminator& rhs );
 
     OutboundPacketStream& operator<<( const BeginMessage& rhs );
+    OutboundPacketStream& operator<<( BeginMessageN rhs );
     OutboundPacketStream& operator<<( const MessageTerminator& rhs );
 
     OutboundPacketStream& operator<<( bool rhs );
@@ -133,7 +158,7 @@ private:
 
     bool ElementSizeSlotRequired() const;
     void CheckForAvailableBundleSpace();
-    void CheckForAvailableMessageSpace( const char *addressPattern );
+    void CheckForAvailableMessageSpace( std::size_t addressPatternSize );
     void CheckForAvailableArgumentSpace( std::size_t argumentLength );
 
     char *data_;
