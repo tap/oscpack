@@ -49,61 +49,61 @@ namespace oscpack{
 
 
 class MalformedPacketException : public Exception{
-public:
+  public:
     MalformedPacketException( const char *w="malformed packet" )
-        : Exception( w ) {}
+      : Exception( w ) {}
 };
 
 class MalformedMessageException : public Exception{
-public:
+  public:
     MalformedMessageException( const char *w="malformed message" )
-        : Exception( w ) {}
+      : Exception( w ) {}
 };
 
 class MalformedBundleException : public Exception{
-public:
+  public:
     MalformedBundleException( const char *w="malformed bundle" )
-        : Exception( w ) {}
+      : Exception( w ) {}
 };
 
 class WrongArgumentTypeException : public Exception{
-public:
+  public:
     WrongArgumentTypeException( const char *w="wrong argument type" )
-        : Exception( w ) {}
+      : Exception( w ) {}
 };
 
 class MissingArgumentException : public Exception{
-public:
+  public:
     MissingArgumentException( const char *w="missing argument" )
-        : Exception( w ) {}
+      : Exception( w ) {}
 };
 
 class ExcessArgumentException : public Exception{
-public:
+  public:
     ExcessArgumentException( const char *w="too many arguments" )
-        : Exception( w ) {}
+      : Exception( w ) {}
 };
 
 
 class ReceivedPacket{
-public:
+  public:
     // Although the OSC spec is not entirely clear on this, we only support
     // packets up to 0x7FFFFFFC bytes long (the maximum 4-byte aligned value
     // representable by an int32). An exception will be raised if you pass a
     // larger value to the ReceivedPacket() constructor.
 
     ReceivedPacket( const char *contents, osc_bundle_element_size_t size )
-        : contents_( contents )
-        , size_( ValidateSize(size) ) {}
+      : contents_( contents )
+      , size_( ValidateSize(size) ) {}
 
     ReceivedPacket( const char *contents, std::size_t size )
-        : contents_( contents )
-        , size_( ValidateSize( (osc_bundle_element_size_t)size ) ) {}
+      : contents_( contents )
+      , size_( ValidateSize( (osc_bundle_element_size_t)size ) ) {}
 
 #if !(defined(__x86_64__) || defined(_M_X64))
     ReceivedPacket( const char *contents, int size )
-        : contents_( contents )
-        , size_( ValidateSize( (osc_bundle_element_size_t)size ) ) {}
+      : contents_( contents )
+      , size_( ValidateSize( (osc_bundle_element_size_t)size ) ) {}
 #endif
 
     bool IsMessage() const { return !IsBundle(); }
@@ -112,37 +112,37 @@ public:
     osc_bundle_element_size_t Size() const { return size_; }
     const char *Contents() const { return contents_; }
 
-private:
+  private:
     const char *contents_;
     osc_bundle_element_size_t size_;
 
     static osc_bundle_element_size_t ValidateSize( osc_bundle_element_size_t size )
     {
-        // sanity check integer types declared in OscTypes.h
-        // you'll need to fix OscTypes.h if any of these asserts fail
-        assert( sizeof(oscpack::int32) == 4 );
-        assert( sizeof(oscpack::uint32) == 4 );
-        assert( sizeof(oscpack::int64) == 8 );
-        assert( sizeof(oscpack::uint64) == 8 );
+      // sanity check integer types declared in OscTypes.h
+      // you'll need to fix OscTypes.h if any of these asserts fail
+      assert( sizeof(oscpack::int32) == 4 );
+      assert( sizeof(oscpack::uint32) == 4 );
+      assert( sizeof(oscpack::int64) == 8 );
+      assert( sizeof(oscpack::uint64) == 8 );
 
-        if( !IsValidElementSizeValue(size) )
-            throw MalformedPacketException( "invalid packet size" );
+      if( !IsValidElementSizeValue(size) )
+        throw MalformedPacketException( "invalid packet size" );
 
-        if( size == 0 )
-            throw MalformedPacketException( "zero length elements not permitted" );
+      if( size == 0 )
+        throw MalformedPacketException( "zero length elements not permitted" );
 
-        if( !IsMultipleOf4(size) )
-            throw MalformedPacketException( "element size must be multiple of four" );
+      if( !IsMultipleOf4(size) )
+        throw MalformedPacketException( "element size must be multiple of four" );
 
-        return size;
+      return size;
     }
 };
 
 
 class ReceivedBundleElement{
-public:
+  public:
     ReceivedBundleElement( const char *sizePtr )
-        : sizePtr_( sizePtr ) {}
+      : sizePtr_( sizePtr ) {}
 
     friend class ReceivedBundleElementIterator;
 
@@ -152,76 +152,77 @@ public:
     osc_bundle_element_size_t Size() const;
     const char *Contents() const { return sizePtr_ + oscpack::OSC_SIZEOF_INT32; }
 
-private:
+  private:
     const char *sizePtr_;
 };
 
 
 class ReceivedBundleElementIterator{
-public:
-  ReceivedBundleElementIterator( const char *sizePtr )
-        : value_( sizePtr ) {}
+  public:
+    ReceivedBundleElementIterator( const char *sizePtr )
+      : value_( sizePtr ) {}
 
-  ReceivedBundleElementIterator operator++()
-  {
-        Advance();
-        return *this;
-  }
+    ReceivedBundleElementIterator operator++()
+    {
+      Advance();
+      return *this;
+    }
 
     ReceivedBundleElementIterator operator++(int)
     {
-        ReceivedBundleElementIterator old( *this );
-        Advance();
-        return old;
+      ReceivedBundleElementIterator old( *this );
+      Advance();
+      return old;
     }
 
-  const ReceivedBundleElement& operator*() const { return value_; }
+    const ReceivedBundleElement& operator*() const { return value_; }
 
     const ReceivedBundleElement* operator->() const { return &value_; }
 
-  friend bool operator==(const ReceivedBundleElementIterator& lhs,
-            const ReceivedBundleElementIterator& rhs );
+    friend bool operator==(const ReceivedBundleElementIterator& lhs,
+                           const ReceivedBundleElementIterator& rhs );
 
-private:
-  ReceivedBundleElement value_;
+  private:
+    ReceivedBundleElement value_;
 
-  void Advance() { value_.sizePtr_ = value_.Contents() + value_.Size(); }
+    void Advance() { value_.sizePtr_ = value_.Contents() + value_.Size(); }
 
     bool IsEqualTo( const ReceivedBundleElementIterator& rhs ) const
     {
-        return value_.sizePtr_ == rhs.value_.sizePtr_;
+      return value_.sizePtr_ == rhs.value_.sizePtr_;
     }
 };
 
 inline bool operator==(const ReceivedBundleElementIterator& lhs,
-        const ReceivedBundleElementIterator& rhs )
+                       const ReceivedBundleElementIterator& rhs )
 {
   return lhs.IsEqualTo( rhs );
 }
 
 inline bool operator!=(const ReceivedBundleElementIterator& lhs,
-        const ReceivedBundleElementIterator& rhs )
+                       const ReceivedBundleElementIterator& rhs )
 {
   return !( lhs == rhs );
 }
 
 
 class ReceivedMessageArgument{
-public:
-  ReceivedMessageArgument( const char *typeTagPtr, const char *argumentPtr )
-    : typeTagPtr_( typeTagPtr )
-    , argumentPtr_( argumentPtr ) {}
+  public:
+    ReceivedMessageArgument( ) = default;
+    ReceivedMessageArgument( const char *typeTagPtr, const char *argumentPtr )
+      : typeTagPtr_( typeTagPtr )
+      , argumentPtr_( argumentPtr ) {}
 
     friend class ReceivedMessageArgumentIterator;
 
-  char TypeTag() const { return *typeTagPtr_; }
+    char TypeTag() const { return *typeTagPtr_; }
 
     // the unchecked methods below don't check whether the argument actually
     // is of the specified type. they should only be used if you've already
     // checked the type tag or the associated IsType() method.
 
     bool IsBool() const
-        { return *typeTagPtr_ == TRUE_TYPE_TAG || *typeTagPtr_ == FALSE_TYPE_TAG; }
+    { return *typeTagPtr_ == TRUE_TYPE_TAG || *typeTagPtr_ == FALSE_TYPE_TAG; }
     bool AsBool() const;
     bool AsBoolUnchecked() const;
 
@@ -278,56 +279,56 @@ public:
     // Only valid at array start. Will throw an exception if IsArrayStart() == false.
     std::size_t ComputeArrayItemCount() const;
 
-private:
-  const char *typeTagPtr_;
-  const char *argumentPtr_;
+  private:
+    const char *typeTagPtr_;
+    const char *argumentPtr_;
 };
 
 
 class ReceivedMessageArgumentIterator{
-public:
-  ReceivedMessageArgumentIterator( const char *typeTags, const char *arguments )
-        : value_( typeTags, arguments ) {}
+  public:
+    ReceivedMessageArgumentIterator( const char *typeTags, const char *arguments )
+      : value_( typeTags, arguments ) {}
 
-  ReceivedMessageArgumentIterator operator++()
-  {
-        Advance();
-        return *this;
-  }
+    ReceivedMessageArgumentIterator operator++()
+    {
+      Advance();
+      return *this;
+    }
 
     ReceivedMessageArgumentIterator operator++(int)
     {
-        ReceivedMessageArgumentIterator old( *this );
-        Advance();
-        return old;
+      ReceivedMessageArgumentIterator old( *this );
+      Advance();
+      return old;
     }
 
-  const ReceivedMessageArgument& operator*() const { return value_; }
+    const ReceivedMessageArgument& operator*() const { return value_; }
 
     const ReceivedMessageArgument* operator->() const { return &value_; }
 
-  friend bool operator==(const ReceivedMessageArgumentIterator& lhs,
-            const ReceivedMessageArgumentIterator& rhs );
+    friend bool operator==(const ReceivedMessageArgumentIterator& lhs,
+                           const ReceivedMessageArgumentIterator& rhs );
 
-private:
-  ReceivedMessageArgument value_;
+  private:
+    ReceivedMessageArgument value_;
 
-  void Advance();
+    void Advance();
 
     bool IsEqualTo( const ReceivedMessageArgumentIterator& rhs ) const
     {
-        return value_.typeTagPtr_ == rhs.value_.typeTagPtr_;
+      return value_.typeTagPtr_ == rhs.value_.typeTagPtr_;
     }
 };
 
 inline bool operator==(const ReceivedMessageArgumentIterator& lhs,
-        const ReceivedMessageArgumentIterator& rhs )
+                       const ReceivedMessageArgumentIterator& rhs )
 {
   return lhs.IsEqualTo( rhs );
 }
 
 inline bool operator!=(const ReceivedMessageArgumentIterator& lhs,
-        const ReceivedMessageArgumentIterator& rhs )
+                       const ReceivedMessageArgumentIterator& rhs )
 {
   return !( lhs == rhs );
 }
@@ -336,24 +337,24 @@ inline bool operator!=(const ReceivedMessageArgumentIterator& lhs,
 class ReceivedMessageArgumentStream{
     friend class ReceivedMessage;
     ReceivedMessageArgumentStream( const ReceivedMessageArgumentIterator& begin,
-            const ReceivedMessageArgumentIterator& end )
-        : p_( begin )
-        , end_( end ) {}
+                                   const ReceivedMessageArgumentIterator& end )
+      : p_( begin )
+      , end_( end ) {}
 
     ReceivedMessageArgumentIterator p_, end_;
 
-public:
+  public:
 
     // end of stream
     bool Eos() const { return p_ == end_; }
 
     ReceivedMessageArgumentStream& operator>>( bool& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs = (*p_++).AsBool();
-        return *this;
+      rhs = (*p_++).AsBool();
+      return *this;
     }
 
     // not sure if it would be useful to stream Nil and Infinitum
@@ -362,160 +363,160 @@ public:
 
     ReceivedMessageArgumentStream& operator>>( int32& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs = (*p_++).AsInt32();
-        return *this;
+      rhs = (*p_++).AsInt32();
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( float& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs = (*p_++).AsFloat();
-        return *this;
+      rhs = (*p_++).AsFloat();
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( char& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs = (*p_++).AsChar();
-        return *this;
+      rhs = (*p_++).AsChar();
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( RgbaColor& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs.value = (*p_++).AsRgbaColor();
-        return *this;
+      rhs.value = (*p_++).AsRgbaColor();
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( MidiMessage& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs.value = (*p_++).AsMidiMessage();
-        return *this;
+      rhs.value = (*p_++).AsMidiMessage();
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( int64& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs = (*p_++).AsInt64();
-        return *this;
+      rhs = (*p_++).AsInt64();
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( TimeTag& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs.value = (*p_++).AsTimeTag();
-        return *this;
+      rhs.value = (*p_++).AsTimeTag();
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( double& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs = (*p_++).AsDouble();
-        return *this;
+      rhs = (*p_++).AsDouble();
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( Blob& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        (*p_++).AsBlob( rhs.data, rhs.size );
-        return *this;
+      (*p_++).AsBlob( rhs.data, rhs.size );
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( const char*& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs = (*p_++).AsString();
-        return *this;
+      rhs = (*p_++).AsString();
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( Symbol& rhs )
     {
-        if( Eos() )
-            throw MissingArgumentException();
+      if( Eos() )
+        throw MissingArgumentException();
 
-        rhs.value = (*p_++).AsSymbol();
-        return *this;
+      rhs.value = (*p_++).AsSymbol();
+      return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( MessageTerminator& rhs )
     {
-        (void) rhs; // suppress unused parameter warning
+      (void) rhs; // suppress unused parameter warning
 
-        if( !Eos() )
-            throw ExcessArgumentException();
+      if( !Eos() )
+        throw ExcessArgumentException();
 
-        return *this;
+      return *this;
     }
 };
 
 
 class ReceivedMessage{
     void Init( const char *bundle, osc_bundle_element_size_t size );
-public:
+  public:
     explicit ReceivedMessage( const ReceivedPacket& packet );
     explicit ReceivedMessage( const ReceivedBundleElement& bundleElement );
 
-  const char *AddressPattern() const { return addressPattern_; }
+    const char *AddressPattern() const { return addressPattern_; }
 
-  // Support for non-standard SuperCollider integer address patterns:
-  bool AddressPatternIsUInt32() const;
-  uint32 AddressPatternAsUInt32() const;
+    // Support for non-standard SuperCollider integer address patterns:
+    bool AddressPatternIsUInt32() const;
+    uint32 AddressPatternAsUInt32() const;
 
-  uint32 ArgumentCount() const { return static_cast<uint32>(typeTagsEnd_ - typeTagsBegin_); }
+    uint32 ArgumentCount() const { return static_cast<uint32>(typeTagsEnd_ - typeTagsBegin_); }
 
     const char *TypeTags() const { return typeTagsBegin_; }
 
 
     typedef ReceivedMessageArgumentIterator const_iterator;
 
-  ReceivedMessageArgumentIterator ArgumentsBegin() const
+    ReceivedMessageArgumentIterator ArgumentsBegin() const
     {
-        return ReceivedMessageArgumentIterator( typeTagsBegin_, arguments_ );
+      return ReceivedMessageArgumentIterator( typeTagsBegin_, arguments_ );
     }
 
-  ReceivedMessageArgumentIterator ArgumentsEnd() const
+    ReceivedMessageArgumentIterator ArgumentsEnd() const
     {
-        return ReceivedMessageArgumentIterator( typeTagsEnd_, 0 );
+      return ReceivedMessageArgumentIterator( typeTagsEnd_, 0 );
     }
 
     ReceivedMessageArgumentStream ArgumentStream() const
     {
-        return ReceivedMessageArgumentStream( ArgumentsBegin(), ArgumentsEnd() );
+      return ReceivedMessageArgumentStream( ArgumentsBegin(), ArgumentsEnd() );
     }
 
-private:
-  const char *addressPattern_;
-  const char *typeTagsBegin_;
-  const char *typeTagsEnd_;
+  private:
+    const char *addressPattern_;
+    const char *typeTagsBegin_;
+    const char *typeTagsEnd_;
     const char *arguments_;
 };
 
 
 class ReceivedBundle{
     void Init( const char *message, osc_bundle_element_size_t size );
-public:
+  public:
     explicit ReceivedBundle( const ReceivedPacket& packet );
     explicit ReceivedBundle( const ReceivedBundleElement& bundleElement );
 
@@ -525,17 +526,17 @@ public:
 
     typedef ReceivedBundleElementIterator const_iterator;
 
-  ReceivedBundleElementIterator ElementsBegin() const
+    ReceivedBundleElementIterator ElementsBegin() const
     {
-        return ReceivedBundleElementIterator( timeTag_ + 8 );
+      return ReceivedBundleElementIterator( timeTag_ + 8 );
     }
 
-  ReceivedBundleElementIterator ElementsEnd() const
+    ReceivedBundleElementIterator ElementsEnd() const
     {
-        return ReceivedBundleElementIterator( end_ );
+      return ReceivedBundleElementIterator( end_ );
     }
 
-private:
+  private:
     const char *timeTag_;
     const char *end_;
     uint32 elementCount_;

@@ -32,6 +32,7 @@ ip/TimerListener.h
 
 osc/SmallString.h
 osc/OscTypes.h
+osc/OscTypesTraits.h
 osc/OscDebug.h
 osc/OscTypes.cpp
 osc/OscHostEndianness.h
