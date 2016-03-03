@@ -8,7 +8,7 @@ namespace oscpack
 template<typename Stream>
 auto& debug(Stream& s, const ReceivedMessage& mess)
 {
-  s << mess.AddressPattern() << " " <<  mess.ArgumentCount() << " ";
+  s << mess.AddressPattern() << " ";
   for(auto arg : mess)
   {
     if(arg.IsString())
@@ -41,7 +41,6 @@ auto& debug(Stream& s, const ReceivedMessage& mess)
     }
   }
 
-  s << "\n";
   return s;
 }
 }

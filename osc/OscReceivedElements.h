@@ -543,6 +543,16 @@ class ReceivedBundle{
 };
 
 
+inline auto begin(const oscpack::ReceivedMessage& mes)
+{
+  return mes.ArgumentsBegin();
+}
+
+inline auto end(const oscpack::ReceivedMessage& mes)
+{
+  return mes.ArgumentsEnd();
+}
+
 } // namespace osc
 
 
