@@ -156,14 +156,14 @@ public:
     OutboundPacketStream& operator<<(
         const char (&ref)[N])
     {
-      CheckForAvailableArgumentSpace( RoundUp4(N + 1) );
+      CheckForAvailableArgumentSpace( RoundUp4(N) );
 
       *(--typeTagsCurrent_) = STRING_TYPE_TAG;
-      std::strncpy( argumentCurrent_, ref, N );
-      argumentCurrent_ += N + 1; // already 0-terminated
+      std::memcpy( argumentCurrent_, ref, N );
+      argumentCurrent_ += N; // already 0-terminated
 
       // zero pad to 4-byte boundary
-      std::size_t i = N + 1;
+      std::size_t i = N;
       while( i & 0x3 ){
           *argumentCurrent_++ = '\0';
           ++i;

@@ -644,7 +644,7 @@ OutboundPacketStream&OutboundPacketStream::operator<<(
   CheckForAvailableArgumentSpace( RoundUp4(rhs.size() + 1) );
 
   *(--typeTagsCurrent_) = STRING_TYPE_TAG;
-  std::strncpy( argumentCurrent_, rhs.data(), rhs.size() );
+  std::memcpy( argumentCurrent_, rhs.data(), rhs.size() );
   argumentCurrent_ += rhs.size();
   *argumentCurrent_++ = '\0';
 
