@@ -98,6 +98,12 @@ struct BeginMessageN
     std::experimental::string_view addressPattern;
 };
 
+// round up to the next highest multiple of 4. unless x is already a multiple of 4
+static inline std::size_t RoundUp4( std::size_t x )
+{
+    return (x + 3) & ~((std::size_t)0x03);
+}
+
 class OutboundPacketStream{
 public:
   OutboundPacketStream( char *buffer, std::size_t capacity );
@@ -143,8 +149,30 @@ public:
     OutboundPacketStream& operator<<( int64 rhs );
     OutboundPacketStream& operator<<( const TimeTag& rhs );
     OutboundPacketStream& operator<<( double rhs );
-    OutboundPacketStream& operator<<( const char* rhs );
+    //OutboundPacketStream& operator<<( const char* rhs );
     OutboundPacketStream& operator<<( std::experimental::string_view rhs );
+
+    template<int N>
+    OutboundPacketStream& operator<<(
+        const char (&ref)[N])
+    {
+      CheckForAvailableArgumentSpace( RoundUp4(N + 1) );
+
+      *(--typeTagsCurrent_) = STRING_TYPE_TAG;
+      std::strncpy( argumentCurrent_, ref, N );
+      argumentCurrent_ += N + 1; // already 0-terminated
+
+      // zero pad to 4-byte boundary
+      std::size_t i = N + 1;
+      while( i & 0x3 ){
+          *argumentCurrent_++ = '\0';
+          ++i;
+      }
+
+      return *this;
+    }
+
+
     OutboundPacketStream& operator<<( const Symbol& rhs );
     OutboundPacketStream& operator<<( const Blob& rhs );
 
