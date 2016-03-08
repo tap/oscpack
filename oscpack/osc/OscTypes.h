@@ -36,43 +36,10 @@
 */
 #ifndef INCLUDED_OSCPACK_OSCTYPES_H
 #define INCLUDED_OSCPACK_OSCTYPES_H
+#include <cstdint>
 
 
 namespace oscpack{
-
-// basic types
-
-#if defined(__BORLANDC__) || defined(_MSC_VER)
-
-typedef __int64 int64;
-typedef unsigned __int64 uint64;
-
-#elif defined(__x86_64__) || defined(_M_X64)
-
-typedef long int64;
-typedef unsigned long uint64;
-
-#else
-
-typedef long long int64;
-typedef unsigned long long uint64;
-
-#endif
-
-
-
-#if defined(__x86_64__) || defined(_M_X64)
-
-typedef signed int int32;
-typedef unsigned int uint32;
-
-#else
-
-typedef signed long int32;
-typedef unsigned long uint32;
-
-#endif
-
 
 enum ValueTypeSizes{
     OSC_SIZEOF_INT32 = 4,
@@ -83,28 +50,28 @@ enum ValueTypeSizes{
 
 
 // osc_bundle_element_size_t is used for the size of bundle elements and blobs
-// the OSC spec specifies these as int32 (signed) but we ensure that they
+// the OSC spec specifies these as int32_t (signed) but we ensure that they
 // are always positive since negative field sizes make no sense.
 
-typedef int32 osc_bundle_element_size_t;
+typedef int32_t osc_bundle_element_size_t;
 
 enum {
     OSC_INT32_MAX = 0x7FFFFFFF,
 
-    // Element sizes are specified to be int32, and are always rounded up to nearest
+    // Element sizes are specified to be int32_t, and are always rounded up to nearest
     // multiple of 4. Therefore their values can't be greater than 0x7FFFFFFC.
     OSC_BUNDLE_ELEMENT_SIZE_MAX = 0x7FFFFFFC
 };
 
 
-inline bool IsValidElementSizeValue( osc_bundle_element_size_t x )
+constexpr inline bool IsValidElementSizeValue( osc_bundle_element_size_t x )
 {
     // sizes may not be negative or exceed OSC_BUNDLE_ELEMENT_SIZE_MAX
     return x >= 0 && x <= OSC_BUNDLE_ELEMENT_SIZE_MAX;
 }
 
 
-inline bool IsMultipleOf4( osc_bundle_element_size_t x )
+constexpr inline bool IsMultipleOf4( osc_bundle_element_size_t x )
 {
     return (x & ((osc_bundle_element_size_t)0x03)) == 0;
 }
@@ -135,104 +102,88 @@ enum TypeTagValues {
 // i/o manipulators used for streaming interfaces
 
 struct BundleInitiator{
-    explicit BundleInitiator( uint64 timeTag_ ) : timeTag( timeTag_ ) {}
-    uint64 timeTag;
+    constexpr explicit BundleInitiator( uint64_t timeTag_ ) : timeTag( timeTag_ ) {}
+    uint64_t timeTag{};
 };
 
-extern BundleInitiator BeginBundleImmediate;
+constexpr BundleInitiator BeginBundle( uint64_t timeTag=1 )
+{ return BundleInitiator{timeTag}; }
 
-inline BundleInitiator BeginBundle( uint64 timeTag=1 )
-{
-    return BundleInitiator(timeTag);
-}
+constexpr BundleInitiator BeginBundleImmediate()
+{ return BundleInitiator{1}; }
 
 
-struct BundleTerminator{
-};
-
-extern BundleTerminator EndBundle;
+struct BundleTerminator{ };
+constexpr BundleTerminator EndBundle() { return {}; }
 
 struct BeginMessage{
-    explicit BeginMessage( const char *addressPattern_ ) : addressPattern( addressPattern_ ) {}
-    const char *addressPattern;
+    constexpr explicit BeginMessage( const char *addressPattern_ ) : addressPattern( addressPattern_ ) {}
+    const char *addressPattern{};
 };
 
-struct MessageTerminator{
-};
-
-extern MessageTerminator EndMessage;
-
+struct MessageTerminator{ };
+constexpr MessageTerminator EndMessage()
+{ return {}; }
 
 // osc specific types. they are defined as structs so they can be used
 // as separately identifiable types with the streaming operators.
 
-struct NilType{
-};
+struct NilType{ };
+constexpr NilType OscNil() { return {}; }
 
-extern NilType OscNil;
 
-#ifndef _OBJC_OBJC_H_
-extern NilType Nil; // Objective-C defines Nil. so our Nil is deprecated. use OscNil instead
-#endif
-
-struct InfinitumType{
-};
-
-extern InfinitumType Infinitum;
+struct InfinitumType{ };
+constexpr InfinitumType Infinitum() { return {}; }
 
 struct RgbaColor{
-    RgbaColor() {}
-    explicit RgbaColor( uint32 value_ ) : value( value_ ) {}
-    uint32 value;
+    constexpr RgbaColor() {}
+    constexpr explicit RgbaColor( uint32_t value_ ) : value( value_ ) {}
+    uint32_t value{};
 
-    operator uint32() const { return value; }
+    constexpr operator uint32_t() const { return value; }
 };
 
 
 struct MidiMessage{
-    MidiMessage() {}
-    explicit MidiMessage( uint32 value_ ) : value( value_ ) {}
-    uint32 value;
+    constexpr MidiMessage() {}
+    constexpr explicit MidiMessage( uint32_t value_ ) : value( value_ ) {}
+    uint32_t value{};
 
-    operator uint32() const { return value; }
+    constexpr operator uint32_t() const { return value; }
 };
 
 
 struct TimeTag{
-    TimeTag() {}
-    explicit TimeTag( uint64 value_ ) : value( value_ ) {}
-    uint64 value;
+    constexpr TimeTag() {}
+    constexpr explicit TimeTag( uint64_t value_ ) : value( value_ ) {}
+    uint64_t value{};
 
-    operator uint64() const { return value; }
+    constexpr operator uint64_t() const { return value; }
 };
 
 
 struct Symbol{
-    Symbol() {}
-    explicit Symbol( const char* value_ ) : value( value_ ) {}
-    const char* value;
+    constexpr Symbol() {}
+    constexpr explicit Symbol( const char* value_ ) : value( value_ ) {}
+    const char* value{};
 
-    operator const char *() const { return value; }
+    constexpr operator const char *() const { return value; }
 };
 
 
 struct Blob{
-    Blob() {}
-    explicit Blob( const void* data_, osc_bundle_element_size_t size_ )
+    constexpr Blob() {}
+    constexpr explicit Blob( const void* data_, osc_bundle_element_size_t size_ )
             : data( data_ ), size( size_ ) {}
-    const void* data;
-    osc_bundle_element_size_t size;
+    const void* data{};
+    osc_bundle_element_size_t size{};
 };
 
-struct ArrayInitiator{
-};
+struct ArrayInitiator{ };
+constexpr ArrayInitiator BeginArray() { return {}; }
 
-extern ArrayInitiator BeginArray;
-
-struct ArrayTerminator{
-};
-
-extern ArrayTerminator EndArray;
+struct ArrayTerminator{ };
+constexpr ArrayTerminator EndArray() { return {}; }
 
 } // namespace osc
 

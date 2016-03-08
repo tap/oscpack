@@ -79,7 +79,7 @@ protected:
                 // example #1:
                 // parse an expected format using the argument stream interface:
                 bool a1;
-                osc::int32 a2;
+                osc::int32_t a2;
                 float a3;
                 const char *a4;
                 args >> a1 >> a2 >> a3 >> a4 >> osc::EndMessage;
@@ -120,7 +120,7 @@ protected:
                         << a << "\n";
                 }else if( arg->IsInt32() ){
                     int a = (arg++)->AsInt32Unchecked();
-                    std::cout << "received '/test3' message with int32 argument: "
+                    std::cout << "received '/test3' message with int32_t argument: "
                         << a << "\n";
                 }else if( arg->IsFloat() ){
                     float a = (arg++)->AsFloatUnchecked();
@@ -159,7 +159,7 @@ protected:
 
             }else if( std::strcmp( m.AddressPattern(), "/an_int" ) == 0 ){
 
-                osc::int32 a;
+                osc::int32_t a;
                 args >> a >> osc::EndMessage;
                 std::cout << "received '/an_int' message: " << a << "\n";
 
@@ -189,11 +189,11 @@ protected:
                 args >> a >> osc::EndMessage;
                 std::cout << "received '/a_midi_message' message: " << a.value << "\n";
 
-            }else if( std::strcmp( m.AddressPattern(), "/an_int64" ) == 0 ){
+            }else if( std::strcmp( m.AddressPattern(), "/an_int64_t" ) == 0 ){
 
-                osc::int64 a;
+                osc::int64_t a;
                 args >> a >> osc::EndMessage;
-                std::cout << "received '/an_int64' message: " << a << "\n";
+                std::cout << "received '/an_int64_t' message: " << a << "\n";
 
             }else if( std::strcmp( m.AddressPattern(), "/a_time_tag" ) == 0 ){
 

@@ -169,7 +169,7 @@ void test1()
         assertEqual( args.Eos(), false );
 
         float f;
-        int32 n;
+        int32_t n;
         bool b;
         args >> f >> n >> b;
 
@@ -217,7 +217,7 @@ void test2()
         TEST2_PRINT( "/a_blob\0,b\0\0\0\0\0\x4\x0\x1\x2\x3" );
 
         //            0123012301 2 3 012 3 0 1 2 3 0 1 2 3
-        TEST2_PRINT( "/an_int64\0\0\0,h\0\0\0\0\0\0\0\0\0\x1" );
+        TEST2_PRINT( "/an_int64_t\0\0\0,h\0\0\0\0\0\0\0\0\0\x1" );
         //            01230123012 3 012 3 0 1 2 3 0 1 2 3
         TEST2_PRINT( "/a_timetag\0\0,t\0\0\0\0\0\0\0\0\0\x1" );
         //            0123012301 2 3 012 3 0 1 2 3 0 1 2 3
@@ -346,19 +346,19 @@ void test3()
     TEST_PACK_UNPACK0( "/nil", OscNil, true, IsNil );
     TEST_PACK_UNPACK0( "/inf", Infinitum, true, IsInfinitum );
 
-    TEST_PACK_UNPACK( "/an_int", (int32)1234, int32, AsInt32 );
+    TEST_PACK_UNPACK( "/an_int", (int32_t)1234, int32_t, AsInt32 );
 
     TEST_PACK_UNPACK( "/a_float", 3.1415926f, float, AsFloat );
 
     TEST_PACK_UNPACK( "/a_char", 'c', char, AsChar );
 
-    TEST_PACK_UNPACK( "/an_rgba_color", RgbaColor(0x22334455), uint32, AsRgbaColor );
+    TEST_PACK_UNPACK( "/an_rgba_color", RgbaColor(0x22334455), uint32_t, AsRgbaColor );
 
-    TEST_PACK_UNPACK( "/a_midi_message", MidiMessage(0x7F), uint32, AsMidiMessage );
+    TEST_PACK_UNPACK( "/a_midi_message", MidiMessage(0x7F), uint32_t, AsMidiMessage );
 
-    TEST_PACK_UNPACK( "/an_int64", (int64)(0xFFFFFFFF), int64, AsInt64 );
+    TEST_PACK_UNPACK( "/an_int64_t", (int64_t)(0xFFFFFFFF), int64_t, AsInt64 );
 
-    TEST_PACK_UNPACK( "/a_time_tag", TimeTag(0xFFFFFFFF), uint64, AsTimeTag );
+    TEST_PACK_UNPACK( "/a_time_tag", TimeTag(0xFFFFFFFF), uint64_t, AsTimeTag );
 
     TEST_PACK_UNPACK( "/a_double", (double)3.1415926, double, AsDouble );
 
@@ -383,7 +383,7 @@ void test3()
 
     // array
     {
-        int32 arrayData[] = {1,2,3,4};
+        int32_t arrayData[] = {1,2,3,4};
         const std::size_t sourceArrayItemCount = 4;
         std::memset( buffer, 0x74, bufferSize );
         OutboundPacketStream ps( buffer, bufferSize );
@@ -403,7 +403,7 @@ void test3()
         ++i; // move past array begin marker        
         for( std::size_t j=0; j < arrayItemCount; ++j ){
             assertEqual( true, i->IsInt32() );
-            int32 k = i->AsInt32();
+            int32_t k = i->AsInt32();
             assertEqual( k, arrayData[j] );
             ++i;
         }

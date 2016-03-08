@@ -35,7 +35,7 @@ protected:
                 // example #1 -- argument stream interface
                 osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
                 bool a1;
-                osc::int32 a2;
+                osc::int32_t a2;
                 float a3;
                 const char *a4;
                 args >> a1 >> a2 >> a3 >> a4 >> osc::EndMessage;

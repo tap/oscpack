@@ -7,10 +7,10 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 # the IpSystemTypePath selects the correct ones based on the current platform
 
 IF(WIN32)
- set(IpSystemTypePath ip/win32)
+ set(IpSystemTypePath oscpack/ip/win32)
  set(LIBS ${LIBS} Ws2_32 winmm)
 ELSE(WIN32)
- set(IpSystemTypePath ip/posix)
+ set(IpSystemTypePath oscpack/ip/posix)
 ENDIF(WIN32)
 if(UNIX AND NOT APPLE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
@@ -18,38 +18,48 @@ endif()
 
 ADD_LIBRARY(oscpack
 
-ip/IpEndpointName.h
-ip/IpEndpointName.cpp
+oscpack/ip/IpEndpointName.h
+oscpack/ip/IpEndpointName.cpp
 
-ip/NetworkingUtils.h
+oscpack/ip/NetworkingUtils.h
 ${IpSystemTypePath}/NetworkingUtils.cpp
+${IpSystemTypePath}/NetworkingUtils.h
 
-ip/UdpSocket.h
+oscpack/ip/UdpSocket.h
+oscpack/ip/AbstractUdpSocket.h
 ${IpSystemTypePath}/UdpSocket.cpp
+${IpSystemTypePath}/UdpSocket.h
 
-ip/PacketListener.h
-ip/TimerListener.h
+oscpack/ip/PacketListener.h
+oscpack/ip/TimerListener.h
 
-osc/SmallString.h
-osc/OscTypes.h
-osc/OscTypesTraits.h
-osc/OscDebug.h
-osc/OscTypes.cpp
-osc/OscHostEndianness.h
-osc/OscException.h
-osc/OscPacketListener.h
-osc/MessageMappingOscPacketListener.h
-osc/OscReceivedElements.h
-osc/OscReceivedElements.cpp
-osc/OscPrintReceivedElements.h
-osc/OscPrintReceivedElements.cpp
-osc/OscOutboundPacketStream.h
-osc/OscOutboundPacketStream.cpp
+oscpack/osc/SmallString.h
+oscpack/osc/OscTypes.h
+oscpack/osc/OscTypesTraits.h
+oscpack/osc/OscDebug.h
+oscpack/osc/OscTypes.cpp
+oscpack/osc/OscHostEndianness.h
+oscpack/osc/OscException.h
+oscpack/osc/OscPacketListener.h
+oscpack/osc/MessageMappingOscPacketListener.h
+oscpack/osc/OscReceivedElements.h
+oscpack/osc/OscReceivedElements.cpp
+oscpack/osc/OscPrintReceivedElements.h
+oscpack/osc/OscPrintReceivedElements.cpp
+oscpack/osc/OscOutboundPacketStream.h
+oscpack/osc/OscOutboundPacketStream.cpp
+oscpack/osc/OscUtilities.h
 
 )
 
 set_target_properties(oscpack PROPERTIES CXX_STANDARD 14)
+target_include_directories(oscpack PUBLIC .)
 
+
+ADD_EXECUTABLE(OscDump examples/OscDump.cpp)
+TARGET_LINK_LIBRARIES(OscDump oscpack ${LIBS})
+target_include_directories(OscDump PUBLIC .)
+set_target_properties(OscDump PROPERTIES CXX_STANDARD 14)
 if(OSCPACK_BUILD_EXAMPLES)
 ADD_EXECUTABLE(OscUnitTests tests/OscUnitTests.cpp)
 TARGET_LINK_LIBRARIES(OscUnitTests oscpack ${LIBS})

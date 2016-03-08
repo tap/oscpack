@@ -34,67 +34,18 @@
   requested that these non-binding requests be included whenever the
   above license is reproduced.
 */
+#ifndef INCLUDED_OSCPACK_PACKETLISTENER_H
+#define INCLUDED_OSCPACK_PACKETLISTENER_H
 
-/*
-    OscDump prints incoming OSC packets. Unlike the Berkeley dumposc program
-    OscDump uses a different printing format which indicates the type of each
-    message argument.
-*/
-
-
-#include <iostream>
-#include <cstring>
-#include <cstdlib>
-
-#if defined(__BORLANDC__) // workaround for BCB4 release build intrinsics bug
-namespace std {
-using ::__strcmp__;  // avoid error: E2316 '__strcmp__' is not a member of 'std'.
-}
-#endif
-
-#include <oscpack/osc/OscReceivedElements.h>
-#include <oscpack/osc/OscPrintReceivedElements.h>
-
-#include <oscpack/ip/UdpSocket.h>
-#include <oscpack/ip/PacketListener.h>
-using namespace oscpack;
-
-class OscDumpPacketListener : public PacketListener{
-public:
-  virtual void ProcessPacket( const char *data, int size,
-      const IpEndpointName& remoteEndpoint )
-  {
-        (void) remoteEndpoint; // suppress unused parameter warning
-
-    std::cout << oscpack::ReceivedPacket( data, size );
-  }
-};
-
-int main(int argc, char* argv[])
+namespace oscpack
 {
-  if( argc >= 2 && std::strcmp( argv[1], "-h" ) == 0 ){
-        std::cout << "usage: OscDump [port]\n";
-        return 0;
-    }
+class IpEndpointName;
 
-  int port = 9998;
-
-  if( argc >= 2 )
-    port = std::atoi( argv[1] );
-
-  OscDumpPacketListener listener;
-    UdpListeningReceiveSocket s(
-            IpEndpointName( IpEndpointName::ANY_ADDRESS, port ),
-            &listener );
-
-  std::cout << "listening for input on port " << port << "...\n";
-  std::cout << "press ctrl-c to end\n";
-
-  s.Run();
-
-  std::cout << "finishing.\n";
-
-    return 0;
+class PacketListener{
+  public:
+    virtual ~PacketListener() {}
+    virtual void ProcessPacket( const char *data, int size,
+                                const IpEndpointName& remoteEndpoint ) = 0;
+};
 }
-
-
+#endif /* INCLUDED_OSCPACK_PACKETLISTENER_H */

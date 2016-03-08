@@ -1,63 +1,68 @@
 /*
-	oscpack -- Open Sound Control (OSC) packet manipulation library
+  oscpack -- Open Sound Control (OSC) packet manipulation library
     http://www.rossbencina.com/code/oscpack
 
     Copyright (c) 2004-2013 Ross Bencina <rossb@audiomulch.com>
 
-	Permission is hereby granted, free of charge, to any person obtaining
-	a copy of this software and associated documentation files
-	(the "Software"), to deal in the Software without restriction,
-	including without limitation the rights to use, copy, modify, merge,
-	publish, distribute, sublicense, and/or sell copies of the Software,
-	and to permit persons to whom the Software is furnished to do so,
-	subject to the following conditions:
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be
-	included in all copies or substantial portions of the Software.
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
-	ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-	CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-	WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+  ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 /*
-	The text above constitutes the entire oscpack license; however, 
-	the oscpack developer(s) also make the following non-binding requests:
+  The text above constitutes the entire oscpack license; however,
+  the oscpack developer(s) also make the following non-binding requests:
 
-	Any person wishing to distribute modifications to the Software is
-	requested to send the modifications to the original developer so that
-	they can be incorporated into the canonical version. It is also 
-	requested that these non-binding requests be included whenever the
-	above license is reproduced.
+  Any person wishing to distribute modifications to the Software is
+  requested to send the modifications to the original developer so that
+  they can be incorporated into the canonical version. It is also
+  requested that these non-binding requests be included whenever the
+  above license is reproduced.
 */
-#include "OscPrintReceivedElements.h"
+#ifndef INCLUDED_OSCPACK_OSCPRINTRECEIVEDELEMENTS_H
+#define INCLUDED_OSCPACK_OSCPRINTRECEIVEDELEMENTS_H
+
+#include <iosfwd>
+
+#include "OscReceivedElements.h"
 
 #include <cstring>
 #include <ctime>
 #include <iostream>
 #include <iomanip>
 
-#if defined(__BORLANDC__) // workaround for BCB4 release build intrinsics bug
-namespace std {
-using ::__strcpy__;  // avoid error: E2316 '__strcpy__' is not a member of 'std'.
-}
-#endif
-
 namespace oscpack{
 
+std::ostream& operator<<( std::ostream & os, const ReceivedPacket& p );
+std::ostream& operator<<( std::ostream & os, const ReceivedMessageArgument& arg );
+std::ostream& operator<<( std::ostream & os, const ReceivedMessage& m );
+std::ostream& operator<<( std::ostream & os, const ReceivedBundle& b );
 
-std::ostream& operator<<( std::ostream & os,
-        const ReceivedMessageArgument& arg )
+
+std::ostream& operator<<(
+    std::ostream & os,
+    const ReceivedMessageArgument& arg )
 {
     switch( arg.TypeTag() ){
         case TRUE_TYPE_TAG:
             os << "bool:true";
             break;
-                
+
         case FALSE_TYPE_TAG:
             os << "bool:false";
             break;
@@ -71,7 +76,7 @@ std::ostream& operator<<( std::ostream & os,
             break;
 
         case INT32_TYPE_TAG:
-            os << "int32:" << arg.AsInt32Unchecked();
+            os << "int32_t:" << arg.AsInt32Unchecked();
             break;
 
         case FLOAT_TYPE_TAG:
@@ -88,8 +93,8 @@ std::ostream& operator<<( std::ostream & os,
 
         case RGBA_COLOR_TYPE_TAG:
             {
-                uint32 color = arg.AsRgbaColorUnchecked();
-                
+                uint32_t color = arg.AsRgbaColorUnchecked();
+
                 os << "RGBA:0x"
                         << std::hex << std::setfill('0')
                         << std::setw(2) << (int)((color>>24) & 0xFF)
@@ -103,7 +108,7 @@ std::ostream& operator<<( std::ostream & os,
 
         case MIDI_MESSAGE_TYPE_TAG:
             {
-                uint32 m = arg.AsMidiMessageUnchecked();
+                uint32_t m = arg.AsMidiMessageUnchecked();
                 os << "midi (port, status, data1, data2):<<"
                         << std::hex << std::setfill('0')
                         << "0x" << std::setw(2) << (int)((m>>24) & 0xFF)
@@ -114,9 +119,9 @@ std::ostream& operator<<( std::ostream & os,
                 os.unsetf(std::ios::basefield);
             }
             break;
-				
+
         case INT64_TYPE_TAG:
-            os << "int64:" << arg.AsInt64Unchecked();
+            os << "int64_t:" << arg.AsInt64Unchecked();
             break;
 
         case TIME_TAG_TYPE_TAG:
@@ -134,7 +139,7 @@ std::ostream& operator<<( std::ostream & os,
                     os.write( timeString, len - 1 );
             }
             break;
-                
+
         case DOUBLE_TYPE_TAG:
             os << "double:" << arg.AsDoubleUnchecked();
             break;
@@ -142,8 +147,8 @@ std::ostream& operator<<( std::ostream & os,
         case STRING_TYPE_TAG:
             os << "OSC-string:`" << arg.AsStringUnchecked() << "'";
             break;
-                
-        case SYMBOL_TYPE_TAG: 
+
+        case SYMBOL_TYPE_TAG:
             os << "OSC-string (symbol):`" << arg.AsSymbolUnchecked() << "'";
             break;
 
@@ -187,7 +192,7 @@ std::ostream& operator<<( std::ostream & os, const ReceivedMessage& m )
         os << m.AddressPatternAsUInt32();
     else
         os << m.AddressPattern();
-    
+
     bool first = true;
     for( ReceivedMessage::const_iterator i = m.ArgumentsBegin();
             i != m.ArgumentsEnd(); ++i ){
@@ -221,7 +226,7 @@ std::ostream& operator<<( std::ostream & os, const ReceivedBundle& b )
     os << " )\n";
 
     ++indent;
-    
+
     for( ReceivedBundle::const_iterator i = b.ElementsBegin();
             i != b.ElementsEnd(); ++i ){
         if( i->IsBundle() ){
@@ -259,3 +264,5 @@ std::ostream& operator<<( std::ostream & os, const ReceivedPacket& p )
 }
 
 } // namespace osc
+
+#endif /* INCLUDED_OSCPACK_OSCPRINTRECEIVEDELEMENTS_H */
