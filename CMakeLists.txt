@@ -16,18 +16,14 @@ if(UNIX AND NOT APPLE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
-ADD_LIBRARY(oscpack
-
+set(SRCS
 oscpack/ip/IpEndpointName.h
-oscpack/ip/IpEndpointName.cpp
 
 oscpack/ip/NetworkingUtils.h
-${IpSystemTypePath}/NetworkingUtils.cpp
 ${IpSystemTypePath}/NetworkingUtils.h
 
 oscpack/ip/UdpSocket.h
 oscpack/ip/AbstractUdpSocket.h
-${IpSystemTypePath}/UdpSocket.cpp
 ${IpSystemTypePath}/UdpSocket.h
 
 oscpack/ip/PacketListener.h
@@ -37,30 +33,26 @@ oscpack/osc/SmallString.h
 oscpack/osc/OscTypes.h
 oscpack/osc/OscTypesTraits.h
 oscpack/osc/OscDebug.h
-oscpack/osc/OscTypes.cpp
 oscpack/osc/OscHostEndianness.h
 oscpack/osc/OscException.h
 oscpack/osc/OscPacketListener.h
 oscpack/osc/MessageMappingOscPacketListener.h
 oscpack/osc/OscReceivedElements.h
-oscpack/osc/OscReceivedElements.cpp
 oscpack/osc/OscPrintReceivedElements.h
-oscpack/osc/OscPrintReceivedElements.cpp
 oscpack/osc/OscOutboundPacketStream.h
-oscpack/osc/OscOutboundPacketStream.cpp
 oscpack/osc/OscUtilities.h
-
 )
+ADD_LIBRARY(oscpack INTERFACE)
 
-set_target_properties(oscpack PROPERTIES CXX_STANDARD 14)
-target_include_directories(oscpack PUBLIC .)
+target_include_directories(oscpack INTERFACE .)
 
 
-ADD_EXECUTABLE(OscDump examples/OscDump.cpp)
-TARGET_LINK_LIBRARIES(OscDump oscpack ${LIBS})
-target_include_directories(OscDump PUBLIC .)
-set_target_properties(OscDump PROPERTIES CXX_STANDARD 14)
 if(OSCPACK_BUILD_EXAMPLES)
+    ADD_EXECUTABLE(OscDump examples/OscDump.cpp)
+    TARGET_LINK_LIBRARIES(OscDump oscpack ${LIBS})
+    target_include_directories(OscDump PUBLIC .)
+    set_target_properties(OscDump PROPERTIES CXX_STANDARD 14)
+
 ADD_EXECUTABLE(OscUnitTests tests/OscUnitTests.cpp)
 TARGET_LINK_LIBRARIES(OscUnitTests oscpack ${LIBS})
 
