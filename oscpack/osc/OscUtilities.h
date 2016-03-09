@@ -137,7 +137,7 @@ inline const char* FindStr4End( const char *p, const char *end )
         return p + 1;
 }
 
-int32_t ToInt32( const char *p )
+inline int32_t ToInt32( const char *p )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
@@ -157,7 +157,7 @@ int32_t ToInt32( const char *p )
 }
 
 
-uint32_t ToUInt32( const char *p )
+inline uint32_t ToUInt32( const char *p )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
@@ -177,7 +177,7 @@ uint32_t ToUInt32( const char *p )
 }
 
 
-int64_t ToInt64( const char *p )
+inline int64_t ToInt64( const char *p )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
@@ -201,7 +201,7 @@ int64_t ToInt64( const char *p )
 }
 
 
-uint64_t ToUInt64( const char *p )
+inline uint64_t ToUInt64( const char *p )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
     union{
