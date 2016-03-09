@@ -127,7 +127,7 @@ auto convert(oscpack::ReceivedMessageArgument arg,
 }
 
 template<oscpack::TypeTagValues val>
-auto convert(oscpack::ReceivedMessageArgument arg,
+auto convert(oscpack::ReceivedMessageArgument,
              std::enable_if_t<
               std::is_same<
                typename OscpackFunction<val>::conversion_mode,
