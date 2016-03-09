@@ -189,7 +189,7 @@ public:
     template<typename T, typename std::enable_if_t<!std::is_same<char, std::remove_const_t<T>>::value>* = nullptr>
     OutboundPacketStream& operator<<( T* rhs ) = delete;
 
-    OutboundPacketStream& operator<<( const BundleInitiator& rhs )
+    OutboundPacketStream& operator<<(BundleInitiator rhs )
     {
         if( IsMessageInProgress() )
             throw MessageInProgressException();
@@ -207,7 +207,7 @@ public:
         return *this;
     }
 
-    OutboundPacketStream& operator<<( const BundleTerminator& rhs )
+    OutboundPacketStream& operator<<(BundleTerminator rhs )
     {
         (void) rhs;
 
@@ -222,7 +222,7 @@ public:
     }
 
 
-    OutboundPacketStream& operator<<( const BeginMessage& rhs )
+    OutboundPacketStream& operator<<(BeginMessage rhs )
     {
         if( IsMessageInProgress() )
             throw MessageInProgressException();
@@ -277,7 +277,7 @@ public:
 
       return *this;
     }
-    OutboundPacketStream& operator<<( const MessageTerminator& rhs )
+    OutboundPacketStream& operator<<(MessageTerminator rhs )
     {
         (void) rhs;
 
@@ -339,7 +339,7 @@ public:
         return *this;
     }
 
-    OutboundPacketStream& operator<<( const InfinitumType& rhs )
+    OutboundPacketStream& operator<<(InfinitumType rhs )
     {
         (void) rhs;
         CheckForAvailableArgumentSpace(0);
