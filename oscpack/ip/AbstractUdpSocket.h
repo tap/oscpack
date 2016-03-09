@@ -55,8 +55,6 @@ class SocketReceiveMultiplexer
 {
     typename Impl_T::socket_multiplexer_t impl_;
 
-    friend class Impl_T::udp_socket_t;
-
   public:
     using implementation_t = Impl_T;
     using udp_socket_t = typename Impl_T::udp_socket_t;
@@ -109,9 +107,7 @@ class UdpSocket{
   protected:
     typename Impl_T::udp_socket_t impl_;
 
-    friend class Impl_T::socket_multiplexer_t;
-
-  public:
+    public:
     using implementation_t = typename Impl_T::udp_socket_t;
 
     // Ctor throws std::runtime_error if there's a problem
