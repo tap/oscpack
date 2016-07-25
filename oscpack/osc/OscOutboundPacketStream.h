@@ -43,7 +43,7 @@
 #include <cstring> // memcpy, memmove, strcpy, strlen
 #include <cstddef> // ptrdiff_t
 #include <iostream>
-#include <experimental/string_view>
+#include <boost/utility/string_ref.hpp>
 #include "SmallString.h"
 
 #include "OscTypes.h"
@@ -97,7 +97,7 @@ struct BeginMessageN
 
     }
 
-    BeginMessageN(std::experimental::string_view str):
+    BeginMessageN(boost::string_ref str):
       addressPattern{str}
     {
 
@@ -110,7 +110,7 @@ struct BeginMessageN
 
     }
 
-    std::experimental::string_view addressPattern;
+    boost::string_ref addressPattern;
 };
 
 
@@ -480,7 +480,7 @@ public:
     }
 
     OutboundPacketStream& operator<<(
-        std::experimental::string_view rhs)
+        boost::string_ref rhs)
     {
       CheckForAvailableArgumentSpace( RoundUp4(rhs.size() + 1) );
 
@@ -497,7 +497,6 @@ public:
       }
 
       return *this;
-
     }
 
     template<int N>
