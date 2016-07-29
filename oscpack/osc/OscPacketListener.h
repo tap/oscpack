@@ -63,8 +63,8 @@ protected:
         const IpEndpointName& remoteEndpoint ) = 0;
 
 public:
-  virtual void ProcessPacket( const char *data, int size,
-      const IpEndpointName& remoteEndpoint )
+  void ProcessPacket( const char *data, int size,
+      const IpEndpointName& remoteEndpoint ) override
     {
         oscpack::ReceivedPacket p( data, size );
         if( p.IsBundle() )

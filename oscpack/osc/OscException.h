@@ -53,8 +53,8 @@ public:
         : what_( w ) {}
     Exception& operator=( const Exception& src ) throw()
         { what_ = src.what_; return *this; }
-    virtual ~Exception() throw() {}
-    virtual const char* what() const throw() { return what_; }
+    virtual ~Exception() noexcept {}
+    const char* what() const noexcept override { return what_; }
 };
 
 } // namespace osc
