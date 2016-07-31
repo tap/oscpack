@@ -35,7 +35,7 @@
     above license is reproduced.
 */
 #include <oscpack/ip/AbstractUdpSocket.h>
-
+#include <atomic>
 #include <pthread.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -271,7 +271,7 @@ class SocketReceiveMultiplexerImplementation
     std::vector< std::pair< PacketListener*, UdpSocket_T* > > socketListeners_;
     std::vector< AttachedTimerListener > timerListeners_;
 
-    volatile bool break_;
+    std::atomic_bool break_;
     int breakPipe_[2]; // [0] is the reader descriptor and [1] the writer
 
     double GetCurrentTimeMs() const
