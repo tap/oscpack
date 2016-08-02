@@ -1,3 +1,4 @@
+#pragma once
 /*
 	oscpack -- Open Sound Control (OSC) packet manipulation library
     http://www.rossbencina.com/code/oscpack
@@ -34,7 +35,7 @@
 	requested that these non-binding requests be included whenever the
 	above license is reproduced.
 */
-
+#define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>   // this must come first to prevent errors with MSVC7
 #include <windows.h>
 #include <mmsystem.h>   // for timeGetTime()

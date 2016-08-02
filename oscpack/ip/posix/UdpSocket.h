@@ -1,3 +1,4 @@
+#pragma once
 /*
     oscpack -- Open Sound Control (OSC) packet manipulation library
     http://www.rossbencina.com/code/oscpack
