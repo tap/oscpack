@@ -34,7 +34,7 @@
 	requested that these non-binding requests be included whenever the
 	above license is reproduced.
 */
-#include "ip/NetworkingUtils.h"
+#include <oscpack/ip/NetworkingUtils.h>
 
 #include <winsock2.h>   // this must come first to prevent errors with MSVC7
 #include <windows.h>
@@ -45,7 +45,15 @@
 static LONG initCount_ = 0;
 static bool winsockInitialized_ = false;
 
-NetworkInitializer::NetworkInitializer()
+namespace oscpack
+{
+    // in general NetworkInitializer is only used internally, but if you're
+    // application creates multiple sockets from different threads at runtime you
+    // should instantiate one of these in main just to make sure the networking
+    // layer is initialized.
+    class NetworkInitializer {
+    public:
+NetworkInitializer()
 {
     if( InterlockedIncrement( &initCount_ ) == 1 ){
         // there is a race condition here if one thread tries to access
@@ -65,9 +73,7 @@ NetworkInitializer::NetworkInitializer()
         }
     }
 }
-
-
-NetworkInitializer::~NetworkInitializer()
+~NetworkInitializer()
 {
     if( InterlockedDecrement( &initCount_ ) == 0 ){
         if( winsockInitialized_ ){
@@ -76,9 +82,10 @@ NetworkInitializer::~NetworkInitializer()
         }
     }
 }
+};
 
 
-unsigned long GetHostByName( const char *name )
+inline unsigned long GetHostByName( const char *name )
 {
     NetworkInitializer networkInitializer;
 
@@ -92,4 +99,5 @@ unsigned long GetHostByName( const char *name )
     }
 
     return result;
+}
 }

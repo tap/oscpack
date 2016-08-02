@@ -49,18 +49,18 @@
 #include <stdexcept>
 #include <vector>
 
-#include "ip/UdpSocket.h" // usually I'd include the module header first
-                          // but this is causing conflicts with BCB4 due to
-                          // std::size_t usage.
 
-#include "ip/NetworkingUtils.h"
-#include "ip/PacketListener.h"
-#include "ip/TimerListener.h"
+#include <oscpack/ip/NetworkingUtils.h>
+#include <oscpack/ip/PacketListener.h>
+#include <oscpack/ip/TimerListener.h>
 
 
 typedef int socklen_t;
 
-
+namespace oscpack
+{
+namespace win32
+{
 static void SockaddrFromIpEndpointName( struct sockaddr_in& sockAddr, const IpEndpointName& endpoint )
 {
     std::memset( (char *)&sockAddr, 0, sizeof(sockAddr ) );
@@ -91,7 +91,7 @@ static IpEndpointName IpEndpointNameFromSockaddr( const struct sockaddr_in& sock
 }
 
 
-class UdpSocket::Implementation{
+class UdpSocketImplementation{
     NetworkInitializer networkInitializer_;
 
 	bool isBound_;
@@ -103,7 +103,7 @@ class UdpSocket::Implementation{
 
 public:
 
-	Implementation()
+    UdpSocketImplementation()
 		: isBound_( false )
 		, isConnected_( false )
 		, socket_( INVALID_SOCKET )
@@ -116,7 +116,7 @@ public:
         sendToAddr_.sin_family = AF_INET;
 	}
 
-	~Implementation()
+	~UdpSocketImplementation()
 	{
 		if (socket_ != INVALID_SOCKET) closesocket(socket_);
 	}
@@ -242,62 +242,6 @@ public:
 	SOCKET& Socket() { return socket_; }
 };
 
-UdpSocket::UdpSocket()
-{
-	impl_ = new Implementation();
-}
-
-UdpSocket::~UdpSocket()
-{
-	delete impl_;
-}
-
-void UdpSocket::SetEnableBroadcast( bool enableBroadcast )
-{
-    impl_->SetEnableBroadcast( enableBroadcast );
-}
-
-void UdpSocket::SetAllowReuse( bool allowReuse )
-{
-    impl_->SetAllowReuse( allowReuse );
-}
-
-IpEndpointName UdpSocket::LocalEndpointFor( const IpEndpointName& remoteEndpoint ) const
-{
-	return impl_->LocalEndpointFor( remoteEndpoint );
-}
-
-void UdpSocket::Connect( const IpEndpointName& remoteEndpoint )
-{
-	impl_->Connect( remoteEndpoint );
-}
-
-void UdpSocket::Send( const char *data, std::size_t size )
-{
-	impl_->Send( data, size );
-}
-
-void UdpSocket::SendTo( const IpEndpointName& remoteEndpoint, const char *data, std::size_t size )
-{
-	impl_->SendTo( remoteEndpoint, data, size );
-}
-
-void UdpSocket::Bind( const IpEndpointName& localEndpoint )
-{
-	impl_->Bind( localEndpoint );
-}
-
-bool UdpSocket::IsBound() const
-{
-	return impl_->IsBound();
-}
-
-std::size_t UdpSocket::ReceiveFrom( IpEndpointName& remoteEndpoint, char *data, std::size_t size )
-{
-	return impl_->ReceiveFrom( remoteEndpoint, data, size );
-}
-
-
 struct AttachedTimerListener{
 	AttachedTimerListener( int id, int p, TimerListener *tl )
 		: initialDelayMs( id )
@@ -315,23 +259,11 @@ static bool CompareScheduledTimerCalls(
 	return lhs.first < rhs.first;
 }
 
-
-SocketReceiveMultiplexer *multiplexerInstanceToAbortWithSigInt_ = 0;
-
-extern "C" /*static*/ void InterruptSignalHandler( int );
-/*static*/ void InterruptSignalHandler( int )
-{
-	multiplexerInstanceToAbortWithSigInt_->AsynchronousBreak();
-#ifndef WINCE
-    signal( SIGINT, SIG_DFL );
-#endif
-}
-
-
-class SocketReceiveMultiplexer::Implementation{
+template<typename UdpSocket_T>
+class SocketReceiveMultiplexerImplementation {
     NetworkInitializer networkInitializer_;
 
-	std::vector< std::pair< PacketListener*, UdpSocket* > > socketListeners_;
+	std::vector< std::pair< PacketListener*, UdpSocket_T* > > socketListeners_;
 	std::vector< AttachedTimerListener > timerListeners_;
 
 	volatile bool break_;
@@ -339,35 +271,30 @@ class SocketReceiveMultiplexer::Implementation{
 
 	double GetCurrentTimeMs() const
 	{
-#ifndef WINCE
 		return timeGetTime(); // FIXME: bad choice if you want to run for more than 40 days
-#else
-        return 0;
-#endif
     }
 
 public:
-    Implementation()
+    SocketReceiveMultiplexerImplementation()
 	{
 		breakEvent_ = CreateEvent( NULL, FALSE, FALSE, NULL );
 	}
 
-    ~Implementation()
+    ~SocketReceiveMultiplexerImplementation()
 	{
 		CloseHandle( breakEvent_ );
 	}
 
-    void AttachSocketListener( UdpSocket *socket, PacketListener *listener )
+    void AttachSocketListener(UdpSocket_T *socket, PacketListener *listener )
 	{
 		assert( std::find( socketListeners_.begin(), socketListeners_.end(), std::make_pair(listener, socket) ) == socketListeners_.end() );
 		// we don't check that the same socket has been added multiple times, even though this is an error
 		socketListeners_.push_back( std::make_pair( listener, socket ) );
 	}
 
-    void DetachSocketListener( UdpSocket *socket, PacketListener *listener )
+    void DetachSocketListener(UdpSocket_T *socket, PacketListener *listener )
 	{
-		std::vector< std::pair< PacketListener*, UdpSocket* > >::iterator i = 
-				std::find( socketListeners_.begin(), socketListeners_.end(), std::make_pair(listener, socket) );
+		auto i = std::find( socketListeners_.begin(), socketListeners_.end(), std::make_pair(listener, socket) );
 		assert( i != socketListeners_.end() );
 
 		socketListeners_.erase( i );
@@ -407,11 +334,11 @@ public:
 
 		std::vector<HANDLE> events( socketListeners_.size() + 1, 0 );
 		int j=0;
-		for( std::vector< std::pair< PacketListener*, UdpSocket* > >::iterator i = socketListeners_.begin();
+		for(auto i = socketListeners_.begin();
 				i != socketListeners_.end(); ++i, ++j ){
 
 			HANDLE event = CreateEvent( NULL, FALSE, FALSE, NULL );
-			WSAEventSelect( i->second->impl_->Socket(), event, FD_READ ); // note that this makes the socket non-blocking which is why we can safely call RecieveFrom() on all sockets below
+			WSAEventSelect( i->second->Socket(), event, FD_READ ); // note that this makes the socket non-blocking which is why we can safely call RecieveFrom() on all sockets below
 			events[j] = event;
 		}
 
@@ -481,13 +408,13 @@ public:
 
 		// free events
 		j = 0;
-		for( std::vector< std::pair< PacketListener*, UdpSocket* > >::iterator i = socketListeners_.begin();
+		for(auto i = socketListeners_.begin();
 				i != socketListeners_.end(); ++i, ++j ){
 
-			WSAEventSelect( i->second->impl_->Socket(), events[j], 0 ); // remove association between socket and event
+			WSAEventSelect( i->second->Socket(), events[j], 0 ); // remove association between socket and event
 			CloseHandle( events[j] );
 			unsigned long enableNonblocking = 0;
-			ioctlsocket( i->second->impl_->Socket(), FIONBIO, &enableNonblocking );  // make the socket blocking again
+			ioctlsocket( i->second->Socket(), FIONBIO, &enableNonblocking );  // make the socket blocking again
 		}
 	}
 
@@ -503,69 +430,10 @@ public:
 	}
 };
 
-
-
-SocketReceiveMultiplexer::SocketReceiveMultiplexer()
+struct Implementation
 {
-	impl_ = new Implementation();
+    using udp_socket_t = oscpack::win32::UdpSocketImplementation;
+    using socket_multiplexer_t = oscpack::win32::SocketReceiveMultiplexerImplementation<udp_socket_t>;
+};
 }
-
-SocketReceiveMultiplexer::~SocketReceiveMultiplexer()
-{	
-	delete impl_;
 }
-
-void SocketReceiveMultiplexer::AttachSocketListener( UdpSocket *socket, PacketListener *listener )
-{
-	impl_->AttachSocketListener( socket, listener );
-}
-
-void SocketReceiveMultiplexer::DetachSocketListener( UdpSocket *socket, PacketListener *listener )
-{
-	impl_->DetachSocketListener( socket, listener );
-}
-
-void SocketReceiveMultiplexer::AttachPeriodicTimerListener( int periodMilliseconds, TimerListener *listener )
-{
-	impl_->AttachPeriodicTimerListener( periodMilliseconds, listener );
-}
-
-void SocketReceiveMultiplexer::AttachPeriodicTimerListener( int initialDelayMilliseconds, int periodMilliseconds, TimerListener *listener )
-{
-	impl_->AttachPeriodicTimerListener( initialDelayMilliseconds, periodMilliseconds, listener );
-}
-
-void SocketReceiveMultiplexer::DetachPeriodicTimerListener( TimerListener *listener )
-{
-	impl_->DetachPeriodicTimerListener( listener );
-}
-
-void SocketReceiveMultiplexer::Run()
-{
-	impl_->Run();
-}
-
-void SocketReceiveMultiplexer::RunUntilSigInt()
-{
-	assert( multiplexerInstanceToAbortWithSigInt_ == 0 ); /* at present we support only one multiplexer instance running until sig int */
-	multiplexerInstanceToAbortWithSigInt_ = this;
-#ifndef WINCE
-    signal( SIGINT, InterruptSignalHandler );
-#endif
-	impl_->Run();
-#ifndef WINCE
-	signal( SIGINT, SIG_DFL );
-#endif
-	multiplexerInstanceToAbortWithSigInt_ = 0;
-}
-
-void SocketReceiveMultiplexer::Break()
-{
-	impl_->Break();
-}
-
-void SocketReceiveMultiplexer::AsynchronousBreak()
-{
-	impl_->AsynchronousBreak();
-}
-

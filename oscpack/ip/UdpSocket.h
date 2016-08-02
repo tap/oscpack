@@ -1,11 +1,11 @@
 #pragma once
 #include "AbstractUdpSocket.h"
+#include <oscpack/ip/NetworkingUtils.h>
 
 #if defined(_MSC_VER)
-#error TODO
+#include "win32/UdpSocket.h"
 #else
 #include "posix/UdpSocket.h"
-#include "posix/NetworkingUtils.h"
 #endif
 
 namespace oscpack
@@ -13,7 +13,7 @@ namespace oscpack
 namespace detail
 {
 #if defined(_MSC_VER)
-#error TODO
+using Implementation = oscpack::win32::Implementation;
 #else
 using Implementation = oscpack::posix::Implementation;
 #endif

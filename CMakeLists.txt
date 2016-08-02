@@ -45,6 +45,9 @@ oscpack/osc/OscUtilities.h
 ADD_LIBRARY(oscpack INTERFACE)
 
 target_include_directories(oscpack INTERFACE .)
+if(WIN32)
+target_link_libraries(oscpack INTERFACE Ws2_32 winmm)
+endif()
 
 
 if(OSCPACK_BUILD_EXAMPLES)

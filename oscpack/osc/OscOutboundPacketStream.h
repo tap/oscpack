@@ -104,8 +104,8 @@ struct BeginMessageN
     }
 
     template<int N>
-    BeginMessageN(const small_string_base<N>& small):
-      addressPattern(small.data(), small.size() - 1)
+    BeginMessageN(const small_string_base<N>& str):
+      addressPattern(str.data(), str.size() - 1)
     {
 
     }
@@ -360,11 +360,6 @@ public:
 
         return *this;
     }
-
-#if !(defined(__x86_64__) || defined(_M_X64))
-    OutboundPacketStream& operator<<( int rhs )
-            { *this << (int32_t)rhs; return *this; }
-#endif
 
     OutboundPacketStream& operator<<( float rhs )
     {
