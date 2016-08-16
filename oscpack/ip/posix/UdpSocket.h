@@ -425,6 +425,13 @@ public:
                     if( FD_ISSET( i->second->Socket(), &tempfds ) ){
 
                         std::size_t size = i->second->ReceiveFrom( remoteEndpoint, data, MAX_BUFFER_SIZE );
+
+                        if(size == 8 && strcmp(data, "__stop_") == 0)
+                        {
+                            break_ = true;
+                            break;
+                        }
+
                         if( size > 0 ){
                             i->first->ProcessPacket( data, (int)size, remoteEndpoint );
                             if( break_ )
