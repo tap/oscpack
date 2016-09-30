@@ -91,13 +91,13 @@ public:
 
 struct BeginMessageN
 {
-    BeginMessageN(const std::string& str):
+    explicit BeginMessageN(const std::string& str):
       addressPattern{str}
     {
 
     }
 
-    BeginMessageN(boost::string_view str):
+    explicit BeginMessageN(boost::string_view str):
       addressPattern{str}
     {
 
