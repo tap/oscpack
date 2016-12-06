@@ -1,17 +1,18 @@
 #pragma once
 #if defined(__has_include)
 #if __has_include(<chobo/static_vector.hpp>)
+#include <iterator>
 #include <chobo/static_vector.hpp>
 namespace oscpack {
-template<typename... Args>
-using static_vector = chobo::static_vector<Args...>;
+template<typename T, int N>
+using static_vector = chobo::static_vector<T, N>;
 }
 #endif
 #else
 #include <boost/container/static_vector.hpp>
 namespace oscpack {
-template<typename... Args>
-using static_vector = boost::container::static_vector<Args...>;
+template<typename T, int N>
+using static_vector = boost::container::static_vector<T, N>;
 }
 #endif
 
