@@ -1,5 +1,20 @@
 #pragma once
+#if defined(__has_include)
+#if __has_include(<chobo/static_vector.hpp>)
+#include <chobo/static_vector.hpp>
+namespace oscpack {
+template<typename... Args>
+using static_vector = chobo::static_vector<Args...>;
+}
+#endif
+#else
 #include <boost/container/static_vector.hpp>
+namespace oscpack {
+template<typename... Args>
+using static_vector = boost::container::static_vector<Args...>;
+}
+#endif
+
 #include <algorithm>
 
 namespace oscpack
@@ -7,7 +22,7 @@ namespace oscpack
 template<int Count>
 struct small_string_base
 {
-    boost::container::static_vector<char, Count> m_impl;
+    static_vector<char, Count> m_impl;
 
     small_string_base():
       m_impl(1, 0)
