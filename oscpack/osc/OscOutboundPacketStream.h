@@ -45,22 +45,30 @@
 #include <iostream>
 
 #include <boost/version.hpp>
-
-#if BOOST_VERSION >= 106100
-#define HAS_BOOST_STRING_VIEW
-#include <boost/utility/string_view.hpp>
-namespace oscpack
-{
-using string_view = boost::string_view;
-}
+#if defined(__has_include)
+  #if __has_include(<string_view>)
+    #include <string_view>
+    namespace oscpack
+    { using string_view = std::string_view; }
+  #elif __has_include(<experimental/string_view>)
+    #include <experimental/string_view>
+    namespace oscpack
+    { using string_view = std::experimental::string_view; }
+  #endif
 #else
-#define HAS_BOOST_STRING_REF
-#include <boost/utility/string_ref.hpp>
-namespace oscpack
-{
-using string_view = boost::string_ref;
-}
+  #if BOOST_VERSION >= 106100
+    #define HAS_BOOST_STRING_VIEW
+    #include <boost/utility/string_view.hpp>
+    namespace oscpack
+    { using string_view = boost::string_view; }
+  #else
+    #define HAS_BOOST_STRING_REF
+    #include <boost/utility/string_ref.hpp>
+    namespace oscpack
+    { using string_view = boost::string_ref; }
+  #endif
 #endif
+
 
 
 #include "SmallString.h"
