@@ -507,7 +507,8 @@ public:
       CheckForAvailableArgumentSpace( RoundUp4(rhs.size() + 1) );
 
       *(--typeTagsCurrent_) = STRING_TYPE_TAG;
-      std::memcpy( argumentCurrent_, rhs.data(), rhs.size() );
+      if(!rhs.empty())
+        std::memcpy( argumentCurrent_, rhs.data(), rhs.size() );
       argumentCurrent_ += rhs.size();
       *argumentCurrent_++ = '\0';
 
