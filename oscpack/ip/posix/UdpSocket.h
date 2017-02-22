@@ -217,7 +217,7 @@ public:
         struct sockaddr_in bindSockAddr;
         SockaddrFromIpEndpointName( bindSockAddr, localEndpoint );
 
-        if (bind(socket_, (struct sockaddr *)&bindSockAddr, sizeof(bindSockAddr)) < 0) {
+        if (::bind(socket_, (struct sockaddr *)&bindSockAddr, sizeof(bindSockAddr)) < 0) {
             throw std::runtime_error("unable to bind udp socket\n");
         }
 
