@@ -943,7 +943,7 @@ class ReceivedMessage{
       return ReceivedMessageArgumentStream( ArgumentsBegin(), ArgumentsEnd() );
     }
 
-    const osc_bundle_element_size_t size() const { return size_; }
+    osc_bundle_element_size_t size() const { return size_; }
 
   private:
     friend class OwnedMessage;
