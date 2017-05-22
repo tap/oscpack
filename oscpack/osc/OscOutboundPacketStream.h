@@ -43,23 +43,27 @@
 #include <cstring> // memcpy, memmove, strcpy, strlen
 #include <cstddef> // ptrdiff_t
 #include <iostream>
-
 #include <boost/version.hpp>
+
 #if defined(__has_include)
-  #if __has_include(<string_view>)
+  #if __has_include(<string_view>) &&  __cplusplus > 201402L
+    #define OSSIA_STRING_VIEW 1
     #include <string_view>
     namespace oscpack
     { using string_view = std::string_view; }
   #elif __has_include(<experimental/string_view>)
+    #define OSSIA_STRING_VIEW 1
     #include <experimental/string_view>
     namespace oscpack
     { using string_view = std::experimental::string_view; }
   #endif
-#else
+#endif
+
+#if !defined(OSSIA_STRING_VIEW)
   #if BOOST_VERSION >= 106100
     #define HAS_BOOST_STRING_VIEW
     #include <boost/utility/string_view.hpp>
-    namespace oscpack
+    namespace ossia
     { using string_view = boost::string_view; }
   #else
     #define HAS_BOOST_STRING_REF
@@ -68,6 +72,7 @@
     { using string_view = boost::string_ref; }
   #endif
 #endif
+
 
 
 
