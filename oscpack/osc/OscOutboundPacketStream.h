@@ -46,7 +46,7 @@
 #include <boost/version.hpp>
 
 #if defined(__has_include)
-  #if __has_include(<string_view>) &&  __cplusplus > 201402L
+  #if __has_include(<string_view>) &&  (__cplusplus > 201402L) && (!defined(_MSVC_LANG) || (_MSVC_LANG > 201403))
     #define OSCPACK_STRING_VIEW 1
     #include <string_view>
     namespace oscpack
