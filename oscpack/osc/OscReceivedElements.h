@@ -944,6 +944,7 @@ class ReceivedMessage{
     }
 
     osc_bundle_element_size_t size() const { return size_; }
+    const char* data() const { return addressPattern_; }
 
   private:
     friend class OwnedMessage;

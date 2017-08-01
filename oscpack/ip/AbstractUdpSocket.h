@@ -114,6 +114,11 @@ class UdpSocket{
     // initializing the socket.
     UdpSocket() = default;
 
+    int LocalPort() const
+    {
+      return impl_.LocalPort();
+    }
+
     // Enable broadcast addresses (e.g. x.x.x.255)
     // Sets SO_BROADCAST socket option.
     void SetEnableBroadcast( bool enableBroadcast )

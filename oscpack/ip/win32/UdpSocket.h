@@ -103,6 +103,7 @@ class UdpSocketImplementation{
   SOCKET socket_;
   struct sockaddr_in connectedAddr_;
   struct sockaddr_in sendToAddr_;
+  int localPort_{};
 
 public:
 
@@ -188,11 +189,22 @@ public:
   {
     SockaddrFromIpEndpointName( connectedAddr_, remoteEndpoint );
 
-        if (connect(socket_, (struct sockaddr *)&connectedAddr_, sizeof(connectedAddr_)) < 0) {
-            throw std::runtime_error("unable to connect udp socket\n");
-        }
+    if (connect(socket_, (struct sockaddr *)&connectedAddr_, sizeof(connectedAddr_)) < 0) {
+      throw std::runtime_error("unable to connect udp socket\n");
+    }
+
+    sockaddr_in local_sock;
+    int len = sizeof(local_sock);
+    getsockname(socket_, (struct sockaddr *) &local_sock, &len);
+    if(len == sizeof(local_sock))
+      localPort_ = ntohs(local_sock.sin_port);
 
     isConnected_ = true;
+  }
+
+  int LocalPort() const
+  {
+    return localPort_;
   }
 
   void Send( const char *data, std::size_t size )

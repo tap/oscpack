@@ -96,12 +96,13 @@ inline IpEndpointName IpEndpointNameFromSockaddr( const struct sockaddr_in& sock
 }
 
 class UdpSocketImplementation{
-    bool isBound_;
-    bool isConnected_;
+    bool isBound_{};
+    bool isConnected_{};
 
-    int socket_;
+    int socket_{};
     struct sockaddr_in connectedAddr_;
     struct sockaddr_in sendToAddr_;
+    int localPort_{};
 
 public:
 
@@ -193,8 +194,18 @@ public:
         if (connect(socket_, (struct sockaddr *)&connectedAddr_, sizeof(connectedAddr_)) < 0) {
             throw std::runtime_error("unable to connect udp socket\n");
         }
+        sockaddr_in local_sock;
+        socklen_t len = sizeof(local_sock);
+        getsockname(socket_, (struct sockaddr *) &local_sock, &len);
+        if(len == sizeof(local_sock))
+          localPort_ = ntohs(local_sock.sin_port);
 
         isConnected_ = true;
+    }
+
+    int LocalPort() const
+    {
+      return localPort_;
     }
 
     void Send( const char *data, std::size_t size )
