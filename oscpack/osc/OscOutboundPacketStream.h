@@ -44,37 +44,10 @@
 #include <cstddef> // ptrdiff_t
 #include <iostream>
 #include <boost/version.hpp>
+#include <string_view>
 
-#if defined(__has_include)
-  #if __has_include(<string_view>) &&  (__cplusplus > 201402L) && (!defined(_MSVC_LANG) || (_MSVC_LANG > 201403))
-    #define OSCPACK_STRING_VIEW 1
-    #include <string_view>
-    namespace oscpack
-    { using string_view = std::string_view; }
-  #elif __has_include(<experimental/string_view>)
-    #define OSCPACK_STRING_VIEW 1
-    #include <experimental/string_view>
-    namespace oscpack
-    { using string_view = std::experimental::string_view; }
-  #endif
-#endif
-
-#if !defined(OSCPACK_STRING_VIEW)
-  #if BOOST_VERSION >= 106100
-    #define HAS_BOOST_STRING_VIEW
-    #include <boost/utility/string_view.hpp>
-    namespace oscpack
-    { using string_view = boost::string_view; }
-  #else
-    #define HAS_BOOST_STRING_REF
-    #include <boost/utility/string_ref.hpp>
-    namespace oscpack
-    { using string_view = boost::string_ref; }
-  #endif
-#endif
-
-
-
+namespace oscpack
+{ using string_view = std::string_view; }
 
 #include "SmallString.h"
 
