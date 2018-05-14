@@ -38,8 +38,8 @@
 #if !defined(WIN32_LEAN_AND_MEAN)
 #define WIN32_LEAN_AND_MEAN
 #endif
-#include <winsock2.h>   // this must come first to prevent errors with MSVC7
-#include <windows.h>
+#include <WinSock2.h>   // this must come first to prevent errors with MSVC7
+#include <Windows.h>
 #include <mmsystem.h>   // for timeGetTime()
 
 #ifndef WINCE
@@ -95,7 +95,6 @@ static IpEndpointName IpEndpointNameFromSockaddr( const struct sockaddr_in& sock
 
 
 class UdpSocketImplementation{
-    NetworkInitializer networkInitializer_;
 
   bool isBound_;
   bool isConnected_;
@@ -112,6 +111,7 @@ public:
     , isConnected_( false )
     , socket_( INVALID_SOCKET )
   {
+    NetworkInitializer::instance();
     if( (socket_ = socket( AF_INET, SOCK_DGRAM, 0 )) == INVALID_SOCKET ){
             throw std::runtime_error("unable to create udp socket\n");
         }
@@ -276,7 +276,6 @@ static bool CompareScheduledTimerCalls(
 
 template<typename UdpSocket_T>
 class SocketReceiveMultiplexerImplementation {
-    NetworkInitializer networkInitializer_;
 
   std::vector< std::pair< PacketListener*, UdpSocket_T* > > socketListeners_;
   std::vector< AttachedTimerListener > timerListeners_;
@@ -292,6 +291,7 @@ class SocketReceiveMultiplexerImplementation {
 public:
     SocketReceiveMultiplexerImplementation()
   {
+    NetworkInitializer::instance();
     breakEvent_ = CreateEvent( NULL, FALSE, FALSE, NULL );
   }
 
