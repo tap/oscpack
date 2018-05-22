@@ -1,89 +1,49 @@
 cmake_minimum_required(VERSION 2.6)
-PROJECT(TestOscpack)
+project(TestOscpack)
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_INCLUDE_CURRENT_DIR 1)
+set(CMAKE_POSITION_INDEPENDENT_CODE 1)
 
-# separate versions of NetworkingUtils.cpp and UdpSocket.cpp are provided for Win32 and POSIX
-# the IpSystemTypePath selects the correct ones based on the current platform
-
-IF(WIN32)
+if(WIN32)
  set(IpSystemTypePath oscpack/ip/win32)
- set(LIBS ${LIBS} Ws2_32 winmm)
-ELSE(WIN32)
+else()
  set(IpSystemTypePath oscpack/ip/posix)
-ENDIF(WIN32)
-if(UNIX AND NOT APPLE)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
-set(SRCS
-oscpack/ip/IpEndpointName.h
-
-oscpack/ip/NetworkingUtils.h
-${IpSystemTypePath}/NetworkingUtils.h
-
-oscpack/ip/UdpSocket.h
-oscpack/ip/AbstractUdpSocket.h
-${IpSystemTypePath}/UdpSocket.h
-
-oscpack/ip/PacketListener.h
-oscpack/ip/TimerListener.h
-
-oscpack/osc/SmallString.h
-oscpack/osc/OscTypes.h
-oscpack/osc/OscTypesTraits.h
-oscpack/osc/OscDebug.h
-oscpack/osc/OscHostEndianness.h
-oscpack/osc/OscException.h
-oscpack/osc/OscPacketListener.h
-oscpack/osc/MessageMappingOscPacketListener.h
-oscpack/osc/OscReceivedElements.h
-oscpack/osc/OscPrintReceivedElements.h
-oscpack/osc/OscOutboundPacketStream.h
-oscpack/osc/OscUtilities.h
-)
-ADD_LIBRARY(oscpack INTERFACE)
+add_library(oscpack INTERFACE)
 
 target_include_directories(oscpack INTERFACE .)
 if(WIN32)
-target_link_libraries(oscpack INTERFACE Ws2_32 winmm)
+  target_link_libraries(oscpack INTERFACE Ws2_32 winmm)
 endif()
 
-
 if(OSCPACK_BUILD_EXAMPLES)
-    ADD_EXECUTABLE(OscDump examples/OscDump.cpp)
-    TARGET_LINK_LIBRARIES(OscDump oscpack ${LIBS})
-    target_include_directories(OscDump PUBLIC .)
-    set_target_properties(OscDump PROPERTIES CXX_STANDARD 14)
+  add_executable(OscDump examples/OscDump.cpp)
+  target_link_libraries(OscDump oscpack)
+  set_target_properties(OscDump PROPERTIES CXX_STANDARD 14)
 
-ADD_EXECUTABLE(OscUnitTests tests/OscUnitTests.cpp)
-TARGET_LINK_LIBRARIES(OscUnitTests oscpack ${LIBS})
+  add_executable(OscUnitTests tests/OscUnitTests.cpp)
+  target_link_libraries(OscUnitTests oscpack)
 
-ADD_EXECUTABLE(OscSendTests tests/OscSendTests.cpp)
-TARGET_LINK_LIBRARIES(OscSendTests oscpack ${LIBS})
+  add_executable(OscSendTests tests/OscSendTests.cpp)
+  target_link_libraries(OscSendTests oscpack)
 
-ADD_EXECUTABLE(OscReceiveTest tests/OscReceiveTest.cpp)
-TARGET_LINK_LIBRARIES(OscReceiveTest oscpack ${LIBS})
+  add_executable(OscReceiveTest tests/OscReceiveTest.cpp)
+  target_link_libraries(OscReceiveTest oscpack)
 
 
-ADD_EXECUTABLE(OscDump examples/OscDump.cpp)
-TARGET_LINK_LIBRARIES(OscDump oscpack ${LIBS})
+  add_executable(OscDump examples/OscDump.cpp)
+  target_link_libraries(OscDump oscpack)
 
-ADD_EXECUTABLE(SimpleReceive examples/SimpleReceive.cpp)
-TARGET_LINK_LIBRARIES(SimpleReceive oscpack ${LIBS})
+  add_executable(SimpleReceive examples/SimpleReceive.cpp)
+  target_link_libraries(SimpleReceive oscpack)
 
-ADD_EXECUTABLE(SimpleSend examples/SimpleSend.cpp)
-TARGET_LINK_LIBRARIES(SimpleSend oscpack ${LIBS})
+  add_executable(SimpleSend examples/SimpleSend.cpp)
+  target_link_libraries(SimpleSend oscpack)
 endif()
 
 if(MSVC)
-  # Force to always compile with W4
-  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-  endif()
+  target_compile_options(oscpack INTERFACE /W4)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-  # Update if necessary
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-long-long -pedantic")
+  target_compile_options(oscpack INTERFACE -Wall -Wextra -Wno-long-long -pedantic)
 endif()
