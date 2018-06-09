@@ -108,13 +108,6 @@ struct BeginMessageN
 
     }
 
-    template<int N>
-    BeginMessageN(const small_string_base<N>& str):
-      addressPattern(str.data(), str.size() - 1)
-    {
-
-    }
-
     oscpack::string_view addressPattern;
 };
 
