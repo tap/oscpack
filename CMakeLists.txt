@@ -31,7 +31,6 @@ if(OSCPACK_BUILD_EXAMPLES)
   add_executable(OscReceiveTest tests/OscReceiveTest.cpp)
   target_link_libraries(OscReceiveTest oscpack)
 
-
   add_executable(OscDump examples/OscDump.cpp)
   target_link_libraries(OscDump oscpack)
 
