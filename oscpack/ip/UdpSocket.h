@@ -2,7 +2,7 @@
 #include "AbstractUdpSocket.h"
 #include <oscpack/ip/NetworkingUtils.h>
 
-#if defined(_MSC_VER)
+#if defined(_WIN32)
 #include "win32/UdpSocket.h"
 #else
 #include "posix/UdpSocket.h"
@@ -12,7 +12,7 @@ namespace oscpack
 {
 namespace detail
 {
-#if defined(_MSC_VER)
+#if defined(_WIN32)
 using Implementation = oscpack::win32::Implementation;
 #else
 using Implementation = oscpack::posix::Implementation;

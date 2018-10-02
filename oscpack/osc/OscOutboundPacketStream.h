@@ -96,12 +96,6 @@ public:
 
 struct BeginMessageN
 {
-    explicit BeginMessageN(const std::string& str):
-      addressPattern{str}
-    {
-
-    }
-
     explicit BeginMessageN(oscpack::string_view str):
       addressPattern{str}
     {
