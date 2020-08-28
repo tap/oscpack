@@ -18,15 +18,30 @@ namespace oscpack
     // return ip address of host name in host byte order
     inline unsigned long GetHostByName(const char *name)
     {
-        unsigned long result = 0;
+      unsigned long result = 0;
 
-        struct hostent *h = gethostbyname(name);
-        if (h) {
-            struct in_addr a;
-            std::memcpy(&a, h->h_addr_list[0], h->h_length);
-            result = ntohl(a.s_addr);
-        }
+      addrinfo hints = {};
+      hints.ai_family = AF_INET;
+      hints.ai_socktype = SOCK_DGRAM;
+      hints.ai_protocol = IPPROTO_UDP;
 
-        return result;
+      addrinfo* ai{};
+      const int err = getaddrinfo(name, nullptr, &hints, &ai);
+
+      if (err != 0)
+      {
+        freeaddrinfo(ai);
+        return 0;
+      }
+
+      if(ai)
+      {
+        auto remote = reinterpret_cast<struct sockaddr_in *>(ai->ai_addr);
+        result = remote->sin_addr.s_addr;
+        result = ntohl(result);
+
+        freeaddrinfo(ai);
+      }
+      return result;
     }
 }
