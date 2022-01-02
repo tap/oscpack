@@ -56,6 +56,7 @@
 #include <cassert>
 #include <cstring> // for memset
 #include <stdexcept>
+#include <chrono>
 #include <vector>
 
 #include <oscpack/ip/PacketListener.h>
@@ -288,11 +289,9 @@ class SocketReceiveMultiplexerImplementation
 
     double GetCurrentTimeMs() const
     {
-        struct timeval t;
-
-        gettimeofday( &t, 0 );
-
-        return ((double)t.tv_sec*1000.) + ((double)t.tv_usec / 1000.);
+      using namespace std::chrono;
+      using clk = steady_clock;
+      return duration_cast<milliseconds>(clk::now().time_since_epoch()).count();
     }
 
 public:
