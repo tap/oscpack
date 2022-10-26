@@ -53,6 +53,8 @@ using ::__strcpy__;  // avoid error: E2316 '__strcpy__' is not a member of 'std'
 
 namespace osc{
 
+  using namespace oscpack;
+
 static int passCount_=0, failCount_=0;
 
 void PrintTestSummary()
@@ -270,7 +272,7 @@ void test2()
         OutboundPacketStream ps( buffer, bufferSize ); \
         ps << BeginMessage( addressPattern )  \
             << argument \
-            << EndMessage;\
+            << oscpack::EndMessage();\
         assertEqual( ps.IsReady(), true );\
         ReceivedMessage m( ReceivedPacket(ps.Data(), ps.Size()) );\
         std::cout << m << "\n";\
@@ -282,8 +284,8 @@ void test2()
         ps << BeginBundle( 1234 ) \
             << BeginMessage( addressPattern )  \
             << argument \
-            << EndMessage \
-            << EndBundle;\
+            << oscpack::EndMessage() \
+            << EndBundle();\
         assertEqual( ps.IsReady(), true );\
         ReceivedBundle b( ReceivedPacket(ps.Data(), ps.Size()) );\
         ReceivedMessage m( *b.ElementsBegin() );\
@@ -297,7 +299,7 @@ void test2()
         OutboundPacketStream ps( buffer, bufferSize ); \
         ps << BeginMessage( addressPattern )  \
             << argument \
-            << EndMessage;\
+            << oscpack::EndMessage();\
         assertEqual( ps.IsReady(), true );\
         ReceivedMessage m( ReceivedPacket(ps.Data(), ps.Size()) );\
         std::cout << m << "\n";\
@@ -309,8 +311,8 @@ void test2()
         ps << BeginBundle( 1234 ) \
             << BeginMessage( addressPattern )  \
             << argument \
-            << EndMessage \
-            << EndBundle;\
+            << oscpack::EndMessage() \
+            << EndBundle();\
         assertEqual( ps.IsReady(), true );\
         ReceivedBundle b( ReceivedPacket(ps.Data(), ps.Size()) );\
         ReceivedMessage m( *b.ElementsBegin() );\
@@ -329,7 +331,7 @@ void test3()
         std::memset( buffer, 0x74, bufferSize );
         OutboundPacketStream ps( buffer, bufferSize );
         ps << BeginMessage( "/no_arguments" )
-            << EndMessage;
+            << oscpack::EndMessage();
         assertEqual( ps.IsReady(), true );
         ReceivedMessage m( ReceivedPacket(ps.Data(), ps.Size()) );
         std::cout << m << "\n";\
@@ -340,11 +342,8 @@ void test3()
     TEST_PACK_UNPACK( "/a_bool", (bool)1, bool, AsBool );
 
 
-#ifndef _OBJC_OBJC_H_
-    TEST_PACK_UNPACK0( "/nil", Nil, true, IsNil );
-#endif
-    TEST_PACK_UNPACK0( "/nil", OscNil, true, IsNil );
-    TEST_PACK_UNPACK0( "/inf", Infinitum, true, IsInfinitum );
+    TEST_PACK_UNPACK0( "/nil", OscNil(), true, IsNil );
+    TEST_PACK_UNPACK0( "/inf", Infinitum(), true, IsInfinitum );
 
     TEST_PACK_UNPACK( "/an_int", (int32_t)1234, int32_t, AsInt32 );
 
@@ -369,7 +368,7 @@ void test3()
         OutboundPacketStream ps( buffer, bufferSize );
         ps << BeginMessage( "/a_blob" )
             << Blob( blobData, 4 )
-            << EndMessage;
+            << oscpack::EndMessage();
         assertEqual( ps.IsReady(), true );
         ReceivedMessage m( ReceivedPacket(ps.Data(), ps.Size()) );
         std::cout << m << "\n";
@@ -388,10 +387,10 @@ void test3()
         std::memset( buffer, 0x74, bufferSize );
         OutboundPacketStream ps( buffer, bufferSize );
         ps << BeginMessage( "/an_array" )
-            << BeginArray;
+            << BeginArray();
         for( std::size_t j=0; j < sourceArrayItemCount; ++j )
             ps << arrayData[j];
-        ps << EndArray << EndMessage;
+        ps << EndArray() << oscpack::EndMessage();
         assertEqual( ps.IsReady(), true );
         ReceivedMessage m( ReceivedPacket(ps.Data(), ps.Size()) );
         std::cout << m << "\n";
@@ -424,11 +423,11 @@ void test3()
         std::memset( buffer, 0x74, bufferSize );
         OutboundPacketStream ps( buffer, bufferSize );
         ps << BeginBundle()
-            << BeginMessage( "/message_one" ) << 1 << 2 << 3 << 4 << EndMessage
-            << BeginMessage( "/message_two" ) << 1 << 2 << 3 << 4 << EndMessage
-            << BeginMessage( "/message_three" ) << 1 << 2 << 3 << 4 << EndMessage
-            << BeginMessage( "/message_four" ) << 1 << 2 << 3 << 4 << EndMessage
-            << EndBundle;
+            << BeginMessage( "/message_one" ) << 1 << 2 << 3 << 4 << oscpack::EndMessage()
+            << BeginMessage( "/message_two" ) << 1 << 2 << 3 << 4 << oscpack::EndMessage()
+            << BeginMessage( "/message_three" ) << 1 << 2 << 3 << 4 << oscpack::EndMessage()
+            << BeginMessage( "/message_four" ) << 1 << 2 << 3 << 4 << oscpack::EndMessage()
+            << EndBundle();
         assertEqual( ps.IsReady(), true );
         ReceivedBundle b( ReceivedPacket(ps.Data(), ps.Size()) );
         std::cout << b << "\n";
