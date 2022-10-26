@@ -43,7 +43,6 @@
 #include <cstring> // memcpy, memmove, strcpy, strlen
 #include <cstddef> // ptrdiff_t
 #include <iostream>
-#include <boost/version.hpp>
 #include <string_view>
 
 namespace oscpack
@@ -337,6 +336,16 @@ public:
         CheckForAvailableArgumentSpace(0);
 
         *(--typeTagsCurrent_) = INFINITUM_TYPE_TAG;
+
+        return *this;
+    }
+
+    OutboundPacketStream& operator<<(NilType rhs )
+    {
+        (void) rhs;
+        CheckForAvailableArgumentSpace(0);
+
+        *(--typeTagsCurrent_) = NIL_TYPE_TAG;
 
         return *this;
     }
