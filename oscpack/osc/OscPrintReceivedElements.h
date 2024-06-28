@@ -221,7 +221,7 @@ inline Ostream_T& operator<<( Ostream_T& os, const ReceivedMessage& m )
 template<typename Ostream_T>
 inline Ostream_T& operator<<( Ostream_T & os, const ReceivedBundle& b )
 {
-    static int indent = 0;
+    static thread_local int indent = 0;
 
     for( int j=0; j < indent; ++j )
         os << "  ";
